@@ -15,8 +15,8 @@ from flask import request, jsonify
 from flask import send_file,make_response
 import base64
 from flask_cors import CORS
-app = flask.Flask(__name__, template_folder="templates", static_folder="static")
-# app = flask.Flask(__name__)
+# app = flask.Flask(__name__, template_folder="templates", static_folder="static")
+app = flask.Flask(__name__)
 
 app.config["DEBUG"] = True
 # from flask_restplus import reqparse, Api, Resource, abort
@@ -37,12 +37,15 @@ JWT_EXP_DELTA_SECONDS = 86400
 cur = conn.cursor()
 from functools import wraps
 cors = CORS(app, resources={r"/": {"origins": "*"}})
-@app.route("/")
-# @cross_origin()
-def landing():    
-    return flask.render_template('index.html')
+# @app.route("/")
+# # @cross_origin()
+# def landing():    
+#     return flask.render_template('index.html')
 
-
+cors = CORS(app, resources={r"/": {"origins": "*"}})
+@app.route('/', methods=['GET','POST'])
+def test():
+    return {"status":"ok"}
 
 
 
