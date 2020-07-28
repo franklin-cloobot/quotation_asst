@@ -670,7 +670,9 @@ def signin():
 # app.run(use_reloader=False)
 # app.run(port='8001',host ='localhost',use_reloader=False)
 
-
+@app.route("/test")
+def hello2():
+    return "1234"
 
 @app.route("/")
 def hello():
