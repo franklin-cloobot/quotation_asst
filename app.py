@@ -18,7 +18,8 @@
 #     app.run()
 
 from .test import *
-from .Monolithic.main import *
+# from .Monolithic.main import *
+from .Monolithic.server import *
 # from .Monolithic.server import start_whatsapp_conversation_server
 
 try:
