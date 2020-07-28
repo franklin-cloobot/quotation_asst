@@ -83,5 +83,5 @@ def getwhatsappmessage():
 #     return resp, 201
 
 def start_whatsapp_conversation_server():
-    # app.run(port=WHATSAPP_SERVER_PORT,host="0.0.0.0",use_reloader=False)
-    app.run()
+    app.run(port=WHATSAPP_SERVER_PORT,host="0.0.0.0",use_reloader=False)
+    # app.run()
