@@ -670,6 +670,6 @@ def signin():
 
 
 # app.run(port='8001',host ='0.0.0.0',use_reloader=False)
-app.run()
+app.run(use_reloader=False)
 # app.run(port='8001',host ='localhost',use_reloader=False)
 
