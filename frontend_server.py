@@ -26,8 +26,7 @@ app.config["DEBUG"] = True
 # app.wsgi_app = middleware(app.wsgi_app)
 
 import pandas as pd
-#this is forsensing pushnotification
-# from Microservices.gmail import *
+
 import psycopg2
 conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
 # conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
