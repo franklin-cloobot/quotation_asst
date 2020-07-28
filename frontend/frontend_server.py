@@ -6,11 +6,11 @@ import uuid
 import jwt
 import decimal
 decimal.getcontext().prec = 5
-from components.pagedata import *
+from .components.pagedata import *
 import datetime
 import time
 # from middleware import middleware
-from components.valtoken import *
+from .components.valtoken import *
 from flask import request, jsonify
 from flask import send_file,make_response
 import base64
