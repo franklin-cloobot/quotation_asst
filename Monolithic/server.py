@@ -21,7 +21,7 @@ from .assist_multi_drc.constants import *
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
-
+application = app
 #flask process to host and allow cors
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 @app.route('/getwhatsappmessage', methods=['POST'])
@@ -84,7 +84,4 @@ def getwhatsappmessage():
 
 def start_whatsapp_conversation_server():
     # app.run(port=WHATSAPP_SERVER_PORT,host="0.0.0.0",use_reloader=False)
-    application = app
-    print("\n\n",__name__,"\n\n")
-    if __name__ == 'quotation_asst.Monolithic.server':
-        app.run()
+    app.run()
