@@ -9,10 +9,9 @@
 import sys
 # print(sys.version)
 from flask import Flask
-import * from Monolithic.main
 app = Flask(__name__)
 @app.route("/")
 def hello():
-    return "Hello, I love Digital Ocean!     "+str(sys.version)
+    return "Hello, I love Digital Ocean!     "+str(Monolithic.main)
 if __name__ == "__main__":
     app.run()
