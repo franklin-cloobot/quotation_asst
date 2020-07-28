@@ -6,7 +6,7 @@
 #     start_whatsapp_conversation_server()
 #     # start_conversation()
 # except Exception as e:
-    print(e)
+    # print(e)
 # import sys
 # # print(sys.version)
 # from flask import Flask
@@ -25,4 +25,5 @@ try:
     app()
     # start_conversation()
 except Exception as e:
+    print(e)
 
