@@ -85,6 +85,6 @@ def getwhatsappmessage():
 def start_whatsapp_conversation_server():
     # app.run(port=WHATSAPP_SERVER_PORT,host="0.0.0.0",use_reloader=False)
     application = app
-
+    print("\n\n",__name__,"\n\n")
     if __name__ == '__main__':
         app.run()
