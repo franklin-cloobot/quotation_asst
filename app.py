@@ -1,6 +1,6 @@
 from .test import *
-from Monolithic.main import start_conversation
-from Monolithic.server import start_whatsapp_conversation_server
+from .Monolithic.main import start_conversation
+from .Monolithic.server import start_whatsapp_conversation_server
 
 try:
     start_whatsapp_conversation_server()
