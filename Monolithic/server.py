@@ -19,9 +19,10 @@ import pickle
 from .assist_multi_drc.quote_assistant import assistant, CONTACT_TEXT, HELP_TEXT
 from .assist_multi_drc.constants import *
 
-app = flask.Flask(__name__)
-app.config["DEBUG"] = True
-application = app
+# app = flask.Flask(__name__)
+# app.config["DEBUG"] = True
+application = flask.Flask(__name__)
+application.config["DEBUG"] = True
 #flask process to host and allow cors
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 @app.route('/getwhatsappmessage', methods=['POST'])
