@@ -9,7 +9,7 @@
 import sys
 # print(sys.version)
 from flask import Flask
-from Monolithic.main import start_conversation
+import * from Monolithic.main
 app = Flask(__name__)
 @app.route("/")
 def hello():
