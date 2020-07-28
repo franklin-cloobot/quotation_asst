@@ -24,7 +24,7 @@ from .assist_multi_drc.constants import *
 application = flask.Flask(__name__)
 application.config["DEBUG"] = True
 #flask process to host and allow cors
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
+cors = CORS(application, resources={r"/*": {"origins": "*"}})
 @app.route('/getwhatsappmessage', methods=['POST','GET'])
 def getwhatsappmessage():
     return "hi hello"
