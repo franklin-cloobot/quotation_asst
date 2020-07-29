@@ -21,8 +21,7 @@ app.config["DEBUG"] = True
 # from flask_restplus import reqparse, Api, Resource, abort
 
 
-# calling our middleware
-# app.wsgi_app = middleware(app.wsgi_app)
+
 
 import pandas as pd
 
