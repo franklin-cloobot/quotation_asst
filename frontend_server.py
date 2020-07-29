@@ -34,10 +34,7 @@ JWT_EXP_DELTA_SECONDS = 86400
 cur = conn.cursor()
 from functools import wraps
 cors = CORS(app, resources={r"/": {"origins": "*"}})
-# @app.route("/")
-# # @cross_origin()
-# def landing():    
-#     return flask.render_template('index.html')
+
 
 
 cors = CORS(app, resources={r"/allquote": {"origins": "*"}})
