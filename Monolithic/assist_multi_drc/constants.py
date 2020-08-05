@@ -3,7 +3,7 @@ MODE_WHATSAPP = 1
 MODE_VOICE = 2
 
 # MY_EMAIL_ID = "stejasvin@cloobot.com"
-
+ORG_ID = 'org_101'
 # AUTHORIZED_RECEIVER_EMAILS = [MY_EMAIL_ID, "vinod@cloobot.com", "aravindh@cloobot.com"]
 MY_EMAIL_ID = "franklin@cloobot.com"
 

@@ -13,7 +13,7 @@ cur = conn.cursor()
 
 def valid_user(token):
     #below is token validation fetch user details one by one from user table and try to decode the token
-    cur.execute("select user_email,user_password,auth_level,product_constraints,location_constraints,user_id from users")
+    cur.execute("select user_email,user_password,auth_level,product_constraints,location_constraints,user_id,org_id from users")
     user_info = cur.fetchall()
     for each_user in user_info:
         try:
@@ -22,7 +22,7 @@ def valid_user(token):
             print("\n\n\n decode",decode,"\n\n\n")
             if decode['user_id'] == each_user[0]:
                 print("\n\n valid token \n\n")
-                return {"data":'True',"auth_level":each_user[2],"prod_cons":each_user[3],"location_cons":each_user[4],"user_id":each_user[5]}
+                return {"data":'True',"auth_level":each_user[2],"prod_cons":each_user[3],"location_cons":each_user[4],"user_id":each_user[5],"user_org_id":each_user[6]}
             
         except:
             print("\n\n\nerror in jwt\n\n\n")

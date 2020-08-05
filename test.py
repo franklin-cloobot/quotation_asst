@@ -1,2 +1,4 @@
-def test():
-    return "hi"
+import requests
+
+req = requests.post("http://127.0.0.1:8001/register")
+print(req.text)
