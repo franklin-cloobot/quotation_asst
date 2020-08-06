@@ -6,10 +6,10 @@ import uuid
 import jwt
 import decimal
 decimal.getcontext().prec = 5
-from components.pagedata import *
+from .components.pagedata import *
 import datetime
 import time
-from components.valtoken import *
+from .components.valtoken import *
 from flask import request, jsonify
 from flask import send_file,make_response
 import base64
@@ -679,5 +679,6 @@ def hello2():
 @app.route("/")
 def hello():
     return "Hello, I love Digital Ocean!"
+
 if __name__ == "__main__":
     app.run(use_reloader=False)
