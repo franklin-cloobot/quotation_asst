@@ -337,7 +337,7 @@ def sendmail(file_name,person_name,phone_number,email_id,cc):
     headers = {'content-type': 'application/json'}
 
     # r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open('/home/ubuntu/quotationbot/CC_Rosi_Quotation/quotation.xlsx','rb').read()))
-    r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open(r'D:/devops/backend/qoutation-asst/quotation.xlsx','rb').read()))
+    r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open('/var/www/flaskapp_quote_testing/quotation_asst/quotation.xlsx','rb').read()))
 
     print(r.text,type(r.text))
 
