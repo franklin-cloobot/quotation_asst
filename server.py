@@ -16,9 +16,9 @@ import pickle
 # from .assist_multi_1_at_a_time.constants import *
 
 #Dump, Review, Change
-from .Monolithic.assist_multi_drc.utils import *
-from .Monolithic.assist_multi_drc.quote_assistant import assistant, CONTACT_TEXT, HELP_TEXT
-from .Monolithic.assist_multi_drc.constants import *
+from Monolithic.assist_multi_drc.utils import *
+from.Monolithic.assist_multi_drc.quote_assistant import assistant, CONTACT_TEXT, HELP_TEXT
+from Monolithic.assist_multi_drc.constants import *
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -86,8 +86,16 @@ def getwhatsappmessage():
 
     return resp, 201
 
+@app.route("/test")
+def hello2():
+    return "1234"
+
+@app.route("/")
+def hello():
+    return "Hello, Im bot!"
+
+if __name__ == "__main__":
+    app.run(port = 8001,use_reloader=False)
 # def start_whatsapp_conversation_server():
 #     app.run(port=WHATSAPP_SERVER_PORT,host="0.0.0.0",use_reloader=False)
 
-if __name__ == "__main__":
-    app.run(use_reloader=False)
