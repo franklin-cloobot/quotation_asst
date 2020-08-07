@@ -442,9 +442,11 @@ def add_user():
         location_cons_list = []
         
         for each in mydata['user']['product_constraints']:
-            prod_cons_list.append(each['item_text'][0])
+            if(each['item_text'][0] not in prod_cons_list):
+                prod_cons_list.append(each['item_text'][0])
         for each in mydata['user']['location_constraints']:
-            location_cons_list.append(each['item_text'])
+            if(each['item_text'] not in location_cons_list):
+                location_cons_list.append(each['item_text'])
         cur.execute("select * from users where org_id = %s",(mydata['data']['user_org_id'],))
         #print("\n\ngoing to added : ",location_cons_list,prod_cons_list)
         user_len = len(cur.fetchall())+1
