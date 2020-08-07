@@ -14,7 +14,7 @@ cur = conn.cursor()
 from .constants import *
 
 
-def populate_from_excel(info_mode, excel_filepath):
+def populate_from_excel(info_mode, excel_filepath,phone):
    
     sheetname = ''
     usecols = ''
@@ -32,23 +32,25 @@ def populate_from_excel(info_mode, excel_filepath):
     if info_mode == INFO_PRICE:
         sheetname = 'Product and Price List'
         usecols = 'Unit Price'
-    cur.execute("select "+col_name+" from "+table_name)
+    cur.execute("select org_id from users where user_phone = %s",(phone,))
+    user_org_id = cur.fetchone()[0]
+    cur.execute("select "+col_name+" from "+table_name+" where org_id = %s",(user_org_id,))
     
     data = cur.fetchall()
     return [x[0].lower() for x in data]
  
 
 
-def get_similar_matches(keyword, targetlist):
+def get_similar_matches(keyword, targetlist,phone):
     return difflib.get_close_matches(keyword, targetlist , cutoff=0.3 , n=MAX_SEARCH_RESULTS  )
 
-def get_price_list_from_excel(excel_filepath):
+def get_price_list_from_excel(excel_filepath,phone):
     sheetname = 'Product and Price List'
     excel_data_df = pandas.read_excel(excel_filepath, sheet_name=sheetname)
     print("\n\n i do know why \n\n")
     return excel_data_df.to_dict(orient='record')
    
-def check_product_details(command):
+def check_product_details(command,phone):
     commasep_list = command.split(',')
     if len(commasep_list) != 3:
         return None, None, None, None
@@ -58,14 +60,14 @@ def check_product_details(command):
         price_str = commasep_list[2].strip().lower()
 
         #check numbers
-        qty = isQty(qty_str)
-        price = isPrice(price_str)
-        prod, opts = check_prod(prod_str)
+        qty = isQty(qty_str,phone)
+        price = isPrice(price_str,phone)
+        prod, opts = check_prod(prod_str,phone)
         print('In check prod details::',prod_str,'::',prod,'::',opts)
         return prod, opts, qty, price
 
    
-def isQty(inputString):
+def isQty(inputString,phone):
     inputString = inputString.replace('units','').replace('nos','').replace('items','')
     l = inputString.split(' ')
     for i in l:
@@ -73,7 +75,7 @@ def isQty(inputString):
             return int(i)
     return 0
 
-def isPrice(inputString):
+def isPrice(inputString,phone):
     inputString = inputString.replace('inr','').replace('rs.','').replace('rs','')
     tmp = None
     try:
@@ -83,9 +85,9 @@ def isPrice(inputString):
     return tmp
 
 
-def check_prod(command):
-    products = populate_from_excel(INFO_PRODUCTS, DEF_EXCEL_FILE)
-    parts = populate_from_excel(INFO_PART_CODE, DEF_EXCEL_FILE)
+def check_prod(command,phone):
+    products = populate_from_excel(INFO_PRODUCTS, DEF_EXCEL_FILE,phone)
+    parts = populate_from_excel(INFO_PART_CODE, DEF_EXCEL_FILE,phone)
 
     options = []
    
@@ -99,11 +101,11 @@ def check_prod(command):
         if(command==j.strip().lower()):
             return j, options
 
-    options = get_similar_matches(command, products)
+    options = get_similar_matches(command, products,phone)
     if len(options) > 0:
         return None, options
 
-    options = get_similar_matches(command, parts)
+    options = get_similar_matches(command, parts,phone)
     if len(options) > 0:
         return None, options
 
@@ -151,7 +153,7 @@ def store_in_temp(command,phone):
     ts = int(datetime.datetime.now().timestamp())
     for i in commands:
         print("each command : ",i)
-        prod, options, qty, price = check_product_details(i)
+        prod, options, qty, price = check_product_details(i,phone)
         if(prod != None):
             status = 'yes'
         else:
@@ -215,7 +217,7 @@ def change_the_details(command,phone):
         data = data[current_row]
         
         temp_id = data[0]
-        prod, opts = check_prod(command)
+        prod, opts = check_prod(command,phone)
         if(prod):
             cur.execute("update temp set product = %s where temp_id = %s",(command,temp_id,))
         else:
@@ -241,10 +243,11 @@ def store_in_permanent(data,phone):
     cur.execute("select user_id,manager_id from users where user_phone = %s",(phone,))
     user = cur.fetchone()
     u_id = user[0]
-    print("\n1\n",u_id)
+    print("\n\n",u_id)
     cur.execute("select dealer from session where u_id =  %s order by timestamp desc limit 1",(u_id,))
-    dealer = cur.fetchone()[0].upper()
-    cur.execute("select c_id from client where c_name = %s",(dealer,))
+    dealer = cur.fetchone()[0]
+    print("\n\n",dealer)
+    cur.execute("select c_id from client where lower(c_name) = lower(%s)",(dealer,))
     client = cur.fetchone()[0]
     print("\n2\n",client)
     cur.execute("select session_id from session where u_id = (select user_id from users where user_phone = %s) order by timestamp desc limit 1;",(phone,))
@@ -252,17 +255,19 @@ def store_in_permanent(data,phone):
     sales_manager_id = user[1]
     ts = int(datetime.datetime.now().timestamp())
     for i in data:
-        cur.execute("select * from quotes")
-        q_id = 'qtpl' + str(len(cur.fetchall()))
+        cur.execute("select count(*) from quotes")
+        q_id = 'qtpl' + str(cur.fetchone()[0])
         print("\n quote id :",q_id,i)
-        cur.execute("select p_id from product where p_code = %s",(i[1].upper(),))
+        cur.execute("select org_id from users where user_phone = %s",(phone,))
+        user_org_id = cur.fetchone()[0]
+        cur.execute("select p_id from product where lower(p_code) = lower(%s)",(i[1],))
         p_id = cur.fetchone()
         if(p_id == None):
             print("\n part  :",i[1])
             cur.execute("select p_id from product where LOWER(p_desc) = LOWER(%s)",(i[1],))
             p_id = cur.fetchone()
         print("\n part id :",p_id)
-        cur.execute("insert into quotes(q_id,org_id,user_id,c_id,p_id,qty,unit_price,sales_exec_id,sales_manager_id,chat_conversation,email_conversation,timestamp,thread_id,session_id) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",(q_id,'org101',u_id,client,p_id,int(i[2]),int(i[3][0:len(i[3])-2]),u_id,sales_manager_id,chat_conversation,email_conversation,ts,thread_id,sess_id))
+        cur.execute("insert into quotes(q_id,org_id,user_id,c_id,p_id,qty,unit_price,sales_exec_id,sales_manager_id,chat_conversation,email_conversation,timestamp,thread_id,session_id) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",(q_id,user_org_id,u_id,client,p_id,int(i[2]),int(i[3][0:len(i[3])-2]),u_id,sales_manager_id,chat_conversation,email_conversation,ts,thread_id,sess_id))
     conn.commit()
     print(" stored into permanent")
 
@@ -331,8 +336,8 @@ def sendmail(file_name,person_name,phone_number,email_id,cc):
 
     headers = {'content-type': 'application/json'}
 
-    r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open('/home/ubuntu/quotationbot/CC_Rosi_Quotation/quotation.xlsx','rb').read()))
-    # r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open(r'C:\Users\Clooot\Desktop\programs\voice assistant\quotation.xlsx','rb').read()))
+    # r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open('/home/ubuntu/quotationbot/CC_Rosi_Quotation/quotation.xlsx','rb').read()))
+    r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open(r'D:/devops/backend/qoutation-asst/quotation.xlsx','rb').read()))
 
     print(r.text,type(r.text))
 
