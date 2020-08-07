@@ -42,9 +42,9 @@ Visit us at https://www.cloobot.ai
 """
 
 
-def check_prod(command):
-    products = populate_from_excel(INFO_PRODUCTS, DEF_EXCEL_FILE)
-    parts = populate_from_excel(INFO_PART_CODE, DEF_EXCEL_FILE)
+def check_prod(command,phone):
+    products = populate_from_excel(INFO_PRODUCTS, DEF_EXCEL_FILE,phone)
+    parts = populate_from_excel(INFO_PART_CODE, DEF_EXCEL_FILE,phone)
 
     options = []
    
@@ -57,36 +57,36 @@ def check_prod(command):
         if(command==j.strip().lower()):
             return j, options
 
-    options = get_similar_matches(command, products)
+    options = get_similar_matches(command, products,phone)
     if len(options) > 0:
         return None, options
 
-    options = get_similar_matches(command, parts)
+    options = get_similar_matches(command, parts,phone)
     if len(options) > 0:
         return None, options
 
     return None, options
 
-def check_dealers(command):
-    dealers = populate_from_excel(INFO_DEALERS, DEF_EXCEL_FILE)
+def check_dealers(command,phone):
+    dealers = populate_from_excel(INFO_DEALERS, DEF_EXCEL_FILE,phone)
     print(dealers)
     options = []
     for j in dealers:
         if(command==j.strip().lower()):
             return j, options
     
-    options = get_similar_matches(command, dealers)
+    options = get_similar_matches(command, dealers,phone)
     print('In dealers, ',command, '::', options)
     return None, options
 
-def get_top3_values(info_mode):
-    return populate_from_excel(info_mode, DEF_EXCEL_FILE)[:MAX_SEARCH_RESULTS]
+def get_top3_values(info_mode,phone):
+    return populate_from_excel(info_mode, DEF_EXCEL_FILE,phone)[:MAX_SEARCH_RESULTS]
 
 
-def get_price_for_product(product_or_part):
-    products = populate_from_excel(INFO_PRODUCTS, DEF_EXCEL_FILE)
-    parts = populate_from_excel(INFO_PART_CODE, DEF_EXCEL_FILE)
-    price_list = get_price_list_from_excel(DEF_EXCEL_FILE)
+def get_price_for_product(product_or_part,phone):
+    products = populate_from_excel(INFO_PRODUCTS, DEF_EXCEL_FILE,phone)
+    parts = populate_from_excel(INFO_PART_CODE, DEF_EXCEL_FILE,phone)
+    price_list = get_price_list_from_excel(DEF_EXCEL_FILE,phone)
 
     for row in price_list:
 
@@ -95,7 +95,7 @@ def get_price_for_product(product_or_part):
     return None
 
 
-def check_auth_email(command):
+def check_auth_email(command,phone):
     options = []
 
     if command == 'me':
@@ -104,7 +104,7 @@ def check_auth_email(command):
 
 
     
-def isQty(inputString):
+def isQty(inputString,phone):
     inputString = inputString.replace('units','').replace('nos','').replace('items','')
     l = inputString.split(' ')
     for i in l:
@@ -112,7 +112,7 @@ def isQty(inputString):
             return int(i)
     return 0
 
-def isPrice(inputString):
+def isPrice(inputString,phone):
     inputString = inputString.replace('inr','').replace('rs.','').replace('rs','')
     tmp = None
     try:
@@ -121,14 +121,14 @@ def isPrice(inputString):
         pass
     return tmp
     
-def check_yes_no(inputString):
+def check_yes_no(inputString,phone):
     if inputString == 'y' or inputString == 'Y' or inputString == 'yes' or inputString == 'Yes':
         return 'y'
     elif inputString == 'n' or inputString == 'N' or inputString == 'no' or inputString == 'No':
         return 'n'
     return None
 
-def check_product_details(command):
+def check_product_details(command,phone):
     commasep_list = command.split(',')
     if len(commasep_list) != 3:
         return None, None, None, None
@@ -138,16 +138,16 @@ def check_product_details(command):
         price_str = commasep_list[2].strip().lower()
 
         #check numbers
-        qty = isQty(qty_str)
-        price = isPrice(price_str)
-        prod, opts = check_prod(prod_str)
+        qty = isQty(qty_str,phone)
+        price = isPrice(price_str,phone)
+        prod, opts = check_prod(prod_str,phone,phone)
         print('In check prod details::',prod_str,'::',prod,'::',opts)
 
 
         return prod, opts, qty, price
 
 
-def check_product_details_v2(command):
+def check_product_details_v2(command,phone):
     commasep_list = []
     
     tmp_list = command.split('of')
@@ -166,9 +166,9 @@ def check_product_details_v2(command):
         prod_str = commasep_list[1].strip().lower()
         price_str = commasep_list[2].strip().lower()
 
-        qty = isQty(qty_str)
-        price = isPrice(price_str)
-        prod, opts = check_prod(prod_str)
+        qty = isQty(qty_str,phone)
+        price = isPrice(price_str,phone)
+        prod, opts = check_prod(prod_str,phone,phone)
         print('In check prod details::',prod_str,'::',prod,'::',opts)
         
         return prod, opts, qty, price
@@ -255,7 +255,7 @@ def assistant(command, phone, mode):
             resp = '''. What's the name of the client. Here are a list of common clients or give the client name you want\n'''
             
             resp += 'Please enter a choice 1-10:\n'            
-            top3_dict[phone] = get_top3_values(INFO_DEALERS)
+            top3_dict[phone] = get_top3_values(INFO_DEALERS,phone)
             for i,t in enumerate(top3_dict[phone]):
                 resp += str(i+1) + '. ' + t + '\n'
             response_text = resp
@@ -282,7 +282,7 @@ def assistant(command, phone, mode):
             command = str(command).strip().lower()
 
 
-        tmp, options = check_dealers(command)
+        tmp, options = check_dealers(command,phone)
         if tmp:
             dealer_dict[phone] = tmp
             # new session is started
@@ -387,7 +387,7 @@ def assistant(command, phone, mode):
 
         print('command::',command)
 
-        tmp, options = check_prod(command)
+        tmp, options = check_prod(command,phone)
         
         if tmp:
             print('r1')
@@ -503,8 +503,8 @@ def assistant(command, phone, mode):
         table  = get_data_for_excel(phone)
         print("\n table is :",table)
         name = get_user(phone)
-        user_mail,user_password = get_user_credentials(phone)
-        print("\n Username,password : ",user_mail,user_password)
+        # user_mail,user_password = get_user_credentials(phone)
+        # print("\n Username,password : ",user_mail,user_password)
         to,manager = get_mail_info(phone)
         qfilename = "quotation.xlsx"
         generate_price_quotation_anex1(qfilename, table)
@@ -519,16 +519,14 @@ def assistant(command, phone, mode):
         if response_status == '''"ok"''':
             print("\n Mail has been sent \n")
             
-            if(user_mail):
-                print("\n\n Yes in \n\n")
-                resp = 'Mail has been sent to '+ to + '. ' + HELP_TEXT 
-                response_text = resp
-                print(" \n response is : ",type(resp),resp)
-                # response_text = 'Mail has been sent'
-                conversation_track[phone] = CS_QUOTE_START
+            
+            print("\n\n Yes in \n\n")
+            resp = 'Mail has been sent to '+ to + '. ' + HELP_TEXT 
+            response_text = resp
+            print(" \n response is : ",type(resp),resp)
+            conversation_track[phone] = CS_QUOTE_START
 
-            else:
-                response_text = 'Error while fetch your credentials'
+            
             
         else:
             print("\n\n\n\nError While Sending the Mail\n\n\n\n")
@@ -545,7 +543,7 @@ def assistant(command, phone, mode):
             if pif_options:
                 top3_dict[phone] = pif_options    
             else:
-                top3_dict[phone] = get_top3_values(INFO_PRODUCTS)
+                top3_dict[phone] = get_top3_values(INFO_PRODUCTS,phone)
             
             for i,t in enumerate(top3_dict[phone]):
                 resp += str(i+1) + '. ' + t + '\n'
