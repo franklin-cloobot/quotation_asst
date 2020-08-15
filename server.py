@@ -52,12 +52,12 @@ def getwhatsappmessage():
     #   }
     # }
     if eventsDict :
-        user = get_user(eventsDict['payload']['sender']['phone'][2:])
-        if(user == 'new'):
-            resp = "Sorry your number is not in my registry plaese contact your manager.Thankyou\nsee u soon :)"
-        else:
-            resp = 'Hi '+ user + ' Please connect with us \n'+CONTACT_TEXT+'\n\n'+HELP_TEXT
-        
+        # user = get_user(eventsDict['payload']['sender']['phone'][2:])
+        # if(user == 'new'):
+        #     resp = "Sorry your number is not in my registry plaese contact your manager.Thankyou\nsee u soon :)"
+        # else:
+        #     resp = 'Hi '+ user + ' Please connect with us \n'+CONTACT_TEXT+'\n\n'+HELP_TEXT
+        resp = 'Please connect with us \n'+CONTACT_TEXT+'\n\n'+HELP_TEXT
         if 'type' in eventsDict and eventsDict['type'] == 'message':
             if 'payload' in eventsDict and 'payload' in eventsDict['payload'] and 'text' in eventsDict['payload']['payload']:
             
