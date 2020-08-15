@@ -437,6 +437,7 @@ def assistant(command, phone, mode):
                 response_text = resp
                 conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
             else:
+                print("go to mail")
                 # get detaisls of this session
                 from_temp = get_for_check(phone)
                 #store this sesion in quotes table
