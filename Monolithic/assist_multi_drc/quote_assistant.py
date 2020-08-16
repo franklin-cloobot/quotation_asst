@@ -12,13 +12,9 @@ import datetime
 
 
 
-product_dict={}
-price_dict={}
+
+
 dealer_dict={}
-quantity_dict = {}
-receiver_email_dict = {}
-
-
 conversation_track = {}
 top3_dict = {}
 pif_dict = {}
@@ -178,20 +174,17 @@ def check_product_details_v2(command,phone):
 
 
 def assistant(command, phone, mode):
+    global  dealer_dict,conversation_track
     print("\n\ncommand : ",command,"   command type() : ",type(command),"   Conversation phone track : ",conversation_track)
-    global product_dict, dealer_dict, quantity_dict, receiver_email_dict 
     
-    if phone not in product_dict:
-        product_dict[phone] = ''
+    
+    
 
     if phone not in dealer_dict:
         dealer_dict[phone] = ''
     
-    if phone not in quantity_dict:
-        quantity_dict[phone] = 0   
-    
-    if phone not in receiver_email_dict:
-        receiver_email_dict[phone] = ''  
+      
+     
 
     if phone not in conversation_track:
         conversation_track[phone] = CS_QUOTE_START
@@ -243,7 +236,7 @@ def assistant(command, phone, mode):
         
         #initialising
         dealer_dict[phone]=''
-        receiver_email_dict[phone] = None
+       
         conversation_track[phone] = CS_QUOTE_START
         create_new_session(phone)
        
@@ -261,6 +254,7 @@ def assistant(command, phone, mode):
             response_text = resp
             
             conversation_track[phone] = CS_QUOTE_CLIENT
+            print("\n conversation track : ",conversation_track)
 
         except Exception as e:
             print(e)
@@ -301,9 +295,9 @@ def assistant(command, phone, mode):
     elif conversation_track[phone] == CS_QUOTE_PRODUCT_DETAILS:
         print('c2')
 
-        product_dict[phone]=''
-        price_dict[phone]=0  
-        quantity_dict[phone] = 0
+        
+         
+       
         top3_dict[phone] = []
         pif_dict[phone] = False
 
