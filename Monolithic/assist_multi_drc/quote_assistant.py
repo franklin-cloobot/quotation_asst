@@ -254,6 +254,7 @@ def assistant(command, phone, mode):
             response_text = resp
             
             conversation_track[phone] = CS_QUOTE_CLIENT
+            print("\n conversation track : ",conversation_track)
 
         except Exception as e:
             print(e)
