@@ -371,55 +371,7 @@ def assistant(command, phone, mode):
 
       
 
-    elif conversation_track[phone] == CS_QUOTE_PRODUCT:
-        print('c2')
-
-        tmp_command = None
-        try:
-            tmp_command = int(command)
-        except ValueError:
-            pass
-
-        if tmp_command and tmp_command >= 1 and tmp_command <= MAX_SEARCH_RESULTS:
-            print('found choice::',top3_dict[phone],'::',top3_dict[phone][int(command)-1])
-            command = top3_dict[phone][int(command)-1]
-            command = str(command).strip().lower()
-
-        print('command::',command)
-
-        tmp, options = check_prod(command,phone)
-        
-        if tmp:
-            print('r1')
-            product_dict[phone] = tmp
-
-        
-
-        else:
-          
-            if len(options) > 0:
-                pif_options = options
-              
-
-    elif conversation_track[phone] == CS_QUOTE_QUANTITY:
-        print('c4')
-
-        tmp = isQty(command)
-        if tmp:
-            quantity_dict[phone] = tmp
-        else:
-            pass
-           
-
-    elif conversation_track[phone] == CS_QUOTE_PRICE:
-        print('c41')
-
-        tmp = isPrice(command)
-        if tmp:
-            price_dict[phone] = tmp
-           
-        else:
-            pass
+   
             
     elif conversation_track[phone] == CS_QUOTE_REVIEW:
         resp = ''
