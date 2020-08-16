@@ -179,6 +179,7 @@ def check_product_details_v2(command,phone):
 
 
 def assistant(command, phone, mode):
+    print("\n\ncommand : ",command,"   command type() : ",type(command))
     global product_dict, dealer_dict, quantity_dict, receiver_email_dict, conversation_track, multi_quote_dict
     
     if phone not in product_dict:
