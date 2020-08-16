@@ -17,7 +17,8 @@ from .constants import *
 # shelve_db = shelve.open("botdata")
 
 def generate_price_quotation_anex1(filename, multi_quote_list):
-    
+    import os
+    os.remove(filename)
     print('In gpqa, mql::'+str(multi_quote_list))
 
     workbook = xlsxwriter.Workbook(filename)

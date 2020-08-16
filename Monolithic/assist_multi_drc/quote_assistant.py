@@ -437,6 +437,7 @@ def assistant(command, phone, mode):
                 response_text = resp
                 conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
             else:
+                print("go to mail")
                 # get detaisls of this session
                 from_temp = get_for_check(phone)
                 #store this sesion in quotes table
@@ -506,9 +507,10 @@ def assistant(command, phone, mode):
         # user_mail,user_password = get_user_credentials(phone)
         # print("\n Username,password : ",user_mail,user_password)
         to,manager = get_mail_info(phone)
-        qfilename = "quotation.xlsx"
+        qfilename = r"/var/www/flaskapp_quote_testing/quotation_asst/quotation.xlsx"
+        # qfilename = "/var/www/flaskapp_quote_testing/quotation_asst/quotation.xlsx"
         generate_price_quotation_anex1(qfilename, table)
-        response_status = sendmail('quotation.xlsx',name,phone,to,manager)
+        response_status = sendmail(r'/var/www/flaskapp_quote_testing/quotation_asst/quotation.xlsx',name,phone,to,manager)
 
 
       
