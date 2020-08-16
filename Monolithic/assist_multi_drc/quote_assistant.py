@@ -18,7 +18,6 @@ dealer_dict={}
 quantity_dict = {}
 receiver_email_dict = {}
 
-multi_quote_dict={}
 
 conversation_track = {}
 top3_dict = {}
@@ -179,8 +178,8 @@ def check_product_details_v2(command,phone):
 
 
 def assistant(command, phone, mode):
-    print("\n\ncommand : ",command,"   command type() : ",type(command))
-    global product_dict, dealer_dict, quantity_dict, receiver_email_dict, conversation_track, multi_quote_dict
+    print("\n\ncommand : ",command,"   command type() : ",type(command),"   Conversation phone track : ",conversation_track)
+    global product_dict, dealer_dict, quantity_dict, receiver_email_dict 
     
     if phone not in product_dict:
         product_dict[phone] = ''
