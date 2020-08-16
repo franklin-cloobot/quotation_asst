@@ -18,10 +18,10 @@ from .constants import *
 
 def generate_price_quotation_anex1(filename, multi_quote_list):
     import os
-    os.remove(filename)
+    here = os.path.dirname(__file__)
     print('In gpqa, mql::'+str(multi_quote_list))
 
-    workbook = xlsxwriter.Workbook(filename)
+    workbook = xlsxwriter.Workbook(os.path.join(here,filename))
 
     worksheet = workbook.add_worksheet()
     # worksheet2 = workbook.add_worksheet()

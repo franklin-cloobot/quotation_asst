@@ -324,7 +324,8 @@ def sendmail(file_name,person_name,phone_number,email_id,cc):
     import ast
     import filetype
     import base64
-    
+    import os
+    here = os.path.dirname(__file__)
     url_appsScript = 'https://script.google.com/macros/s/AKfycbw9Ugx8zLu0F_nlew0vDY4vRvIU66qqbFzqEUCQPbpMFHvrFVMk/exec'
 
 
@@ -337,7 +338,7 @@ def sendmail(file_name,person_name,phone_number,email_id,cc):
     headers = {'content-type': 'application/json'}
 
     # r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open('/home/ubuntu/quotationbot/CC_Rosi_Quotation/quotation.xlsx','rb').read()))
-    r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open(file_name,'rb').read()))
+    r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open(os.path.join(here,file_name),'rb').read()))
 
     print(r.text,type(r.text))
 
