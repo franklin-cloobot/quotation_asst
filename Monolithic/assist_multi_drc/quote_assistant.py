@@ -508,8 +508,9 @@ def assistant(command, phone, mode):
         # print("\n Username,password : ",user_mail,user_password)
         to,manager = get_mail_info(phone)
         qfilename = "/var/www/flaskapp_quote_testing/quotation_asst/quotation.xlsx"
+        # qfilename = "/var/www/flaskapp_quote_testing/quotation_asst/quotation.xlsx"
         generate_price_quotation_anex1(qfilename, table)
-        response_status = sendmail('quotation.xlsx',name,phone,to,manager)
+        response_status = sendmail('/var/www/flaskapp_quote_testing/quotation_asst/quotation.xlsx',name,phone,to,manager)
 
 
       
