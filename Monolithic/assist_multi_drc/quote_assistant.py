@@ -534,46 +534,7 @@ def assistant(command, phone, mode):
             print("\n\n\n\nError While Sending the Mail\n\n\n\n")
         
 
-    if pif_dict[phone]:
-        print('Inside pif')
-        if not product_dict[phone] or pif_review_option == '1':
-            print('Inside pif prod')
-            product_dict[phone] = ''
-            conversation_track[phone] = CS_QUOTE_PRODUCT            
-            resp = '''Which product? Your most popular products are listed below:\n'''
-            
-            if pif_options:
-                top3_dict[phone] = pif_options    
-            else:
-                top3_dict[phone] = get_top3_values(INFO_PRODUCTS,phone)
-            
-            for i,t in enumerate(top3_dict[phone]):
-                resp += str(i+1) + '. ' + t + '\n'
-            response_text = resp
-
-
-        elif not quantity_dict[phone] or pif_review_option == '2':
-            print('Inside pif quant')
-
-            conversation_track[phone] = CS_QUOTE_QUANTITY
-            resp = "What is the quantity in nos?"
-            response_text = resp
-
-        elif not price_dict[phone] or pif_review_option == '3':
-            print('Inside pif price')
-
-            conversation_track[phone] = CS_QUOTE_PRICE
-            resp = "What is the price in INR?"
-            response_text = resp
-        else:
-            conversation_track[phone] = CS_QUOTE_REVIEW
-            resp = "All correct? Please enter a choice 1-3 to change:" + \
-                "\n1. Product is "+ product_dict[phone] + \
-                "\n2. Quantity is " + str(quantity_dict[phone]) +  " nos" + \
-                "\n3. Price is Rs." + str(price_dict[phone]) + \
-                "\n\nDo you want to add one more product? (Yes / No)"
-            pif_dict[phone] = False
-            response_text = resp
+   
 
     
 
