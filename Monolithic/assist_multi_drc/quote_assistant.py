@@ -478,14 +478,14 @@ def assistant(command, phone, mode):
         to,manager = get_mail_info(phone)
         ts = datetime.datetime.now().strftime("_%H_%M_%S_%f")
         qfilename =org+ts+".xlsx"
-        change_conversation_state(phone,0)
-        conversation_track,top3_dict = current_state(phone)
-        print("\n conversation track : ",conversation_track)
+        
         path = "/var/www/flaskapp_quote_testing/quotation_asst/Monolithic/assist_multi_drc/quotes/"
         # path = "D:/devops/backend/qoutation-asst/Monolithic/assist_multi_drc/quotes/"
         generate_price_quotation_anex1(qfilename,path, table)
         response_status = sendmail(qfilename,path,name,phone,to,manager)
-
+        change_conversation_state(phone,0)
+        conversation_track,top3_dict = current_state(phone)
+        print("\n conversation track : ",conversation_track)
 
       
         
