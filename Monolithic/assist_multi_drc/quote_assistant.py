@@ -14,11 +14,10 @@ import datetime
 
 
 
-dealer_dict={}
-conversation_track = {}
-top3_dict = {}
-pif_dict = {}
-edit_on= 0
+
+conversation_track = 0
+top3_dict = []
+
 HELP_TEXT = """You can use these commands and I'll help you out:\n
 - get quote / quotation or : starts the conversation to generate price quotation.\n
 - connect with cloobot : displays phone number of a Sales Manager of Cloobot Techlabs
@@ -174,37 +173,30 @@ def check_product_details_v2(command,phone):
 
 
 def assistant(command, phone, mode):
-    global  dealer_dict,conversation_track
-    print("\n\ncommand : ",command,"   command type() : ",type(command),"   Conversation phone track : ",conversation_track)
+    top3_dict = []
+    if(check_number_in_track(phone)):
+        conversation_track,top3_dict = current_state(phone)
+        if top3_dict == '[]':
+            top3_dict = []
+        else:
+            top3_dict = top3_dict
+            print("\n top3 : ",top3_dict,type(top3_dict))
+    else:
+        start_conversation(phone)
+        conversation_track = 0
     
-    
+    print("\n\ncommand : ",command,"   Conversation phone track : ",conversation_track,"  Top3 dict : ",top3_dict)
     
 
-    if phone not in dealer_dict:
-        dealer_dict[phone] = ''
     
-      
-     
 
-    if phone not in conversation_track:
-        conversation_track[phone] = CS_QUOTE_START
-
-    if phone not in top3_dict:
-        top3_dict[phone] = []
-
-    if phone not in pif_dict:
-        pif_dict[phone] = []
     
-    print('Convo:',conversation_track[phone])
+    
+    print('Convo:',conversation_track)
     response_text = ""
     return_status = True
-    take_next_step_convo = True
-    options_found_flag = False
-    add_more_product_flag = False
-
    
-    pif_options = []
-    pif_review_option = ''
+
    
 
     
@@ -221,6 +213,7 @@ def assistant(command, phone, mode):
             response_text = "Sorry I didn't know you.Your numbers is not in my registry.Please contact your manager for more details.Thankyou see you soon :)"
         else:
             response_text = 'Hello '+ name+'\n\n'+HELP_TEXT
+        
 
 
     elif 'help me' in command:
@@ -231,13 +224,14 @@ def assistant(command, phone, mode):
 
 
     #ask me anything
-    elif 'quotation' in command or 'quote' in command or (phone in conversation_track and conversation_track[phone] == CS_QUOTE_START):
+    elif 'quotation' in command or 'quote' in command or (conversation_track == CS_QUOTE_START):
         print('c1')
         
         #initialising
-        dealer_dict[phone]=''
-       
-        conversation_track[phone] = CS_QUOTE_START
+        
+        change_conversation_state(phone,CS_QUOTE_START)
+        conversation_track,top3_dict = current_state(phone) 
+        # conversation_track[phone] = CS_QUOTE_START
         create_new_session(phone)
        
         
@@ -245,15 +239,20 @@ def assistant(command, phone, mode):
         try:
            
 
-            resp = '''. What's the name of the client. Here are a list of common clients or give the client name you want\n'''
+            resp = '''What's the name of the client. Here are a list of common clients or give the client name you want\n'''
             
             resp += 'Please enter a choice 1-10:\n'            
-            top3_dict[phone] = get_top3_values(INFO_DEALERS,phone)
-            for i,t in enumerate(top3_dict[phone]):
+            # top3_dict[phone] = get_top3_values(INFO_DEALERS,phone)
+            print("top3_dict : ",get_top3_values(INFO_DEALERS,phone),type(get_top3_values(INFO_DEALERS,phone)))
+            change_top3(phone,str(get_top3_values(INFO_DEALERS,phone)))
+            conversation_track,top3_dict = current_state(phone)
+            for i,t in enumerate(top3_dict):
                 resp += str(i+1) + '. ' + t + '\n'
             response_text = resp
             
-            conversation_track[phone] = CS_QUOTE_CLIENT
+            # conversation_track[phone] = CS_QUOTE_CLIENT
+            change_conversation_state(phone,CS_QUOTE_CLIENT)
+            conversation_track,top3_dict = current_state(phone)
             print("\n conversation track : ",conversation_track)
 
         except Exception as e:
@@ -261,9 +260,9 @@ def assistant(command, phone, mode):
             response_text = e
     
     
-    elif conversation_track[phone] == CS_QUOTE_CLIENT:
-        print('c3')
-
+    elif conversation_track == CS_QUOTE_CLIENT:
+        print('c2')
+        conversation_track,top3_dict = current_state(phone)
         tmp_command = None
         try:
             tmp_command = int(command)
@@ -272,34 +271,43 @@ def assistant(command, phone, mode):
 
        
         if tmp_command and tmp_command >= 1 and tmp_command <= MAX_SEARCH_RESULTS:
-            command = top3_dict[phone][int(command)-1]
+            command = top3_dict[int(command)-1]
             command = str(command).strip().lower()
 
 
         tmp, options = check_dealers(command,phone)
         if tmp:
-            dealer_dict[phone] = tmp
+            
             # new session is started
             store_dealers_in_session(phone,tmp)
-            resp = "Got it. "+dealer_dict[phone]+". Please enter product in  the format [name],[quantity],[price].If you want more than one product give each of them in new line using the correct format as said before."
+            resp = "Got it "+tmp+". Please enter product in  the format [name],[quantity],[price].If you want more than one product give each of them in new line using the correct format as said before."
             response_text = resp
-            conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
+            # conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
+            change_conversation_state(phone,CS_QUOTE_PRODUCT_DETAILS)
+            conversation_track,top3_dict = current_state(phone)
+            print("\n conversation track : ",conversation_track)
+
         else:
             if len(options) > 0:
-                top3_dict[phone] = options
+                # top3_dict[phone] = options
+                change_top3(phone,str(options))
+                change_conversation_state(phone,CS_QUOTE_CLIENT)
+                conversation_track,top3_dict = current_state(phone)
+                print("\n conversation track : ",conversation_track)
                 response_text = "Found these options, please select an option: \n"
-                for i,t in enumerate(top3_dict[phone]):
+                for i,t in enumerate(top3_dict):
                     response_text += str(i+1) + '. ' + t + '\n'
                
 
-    elif conversation_track[phone] == CS_QUOTE_PRODUCT_DETAILS:
-        print('c2')
+    elif conversation_track == CS_QUOTE_PRODUCT_DETAILS:
+        print('c3')
 
         
          
        
-        top3_dict[phone] = []
-        pif_dict[phone] = False
+        # top3_dict[phone] = []
+        change_top3(phone,'[]')
+       
 
        
         command = str(command).strip().lower()
@@ -351,23 +359,29 @@ def assistant(command, phone, mode):
                 sno = sno + 1
             resp = resp + "\n\nDo you want to add one more product? (Yes / No).If 'no' means Im going to send the quotation details to you via mail."
             response_text = resp
-            conversation_track[phone] = CS_QUOTE_REVIEW
+            # conversation_track[phone] = CS_QUOTE_REVIEW
+            change_conversation_state(phone,CS_QUOTE_REVIEW)
+            conversation_track,top3_dict = current_state(phone)
+            print("\n conversation track : ",conversation_track)
         else:
             # if product i mismatched this part ask for correct option
             sno = 1
-            resp = 'Select one of these option related to your query\n'
+            resp = 'Select one of these option related to your query :\n'
             option_list = ast.literal_eval(pending_list[0][1])
-            print("\n option list : ",option_list)
-            for i in option_list:
-                resp =  resp + str(sno) +" , " + i + '\n'
-                sno = sno + 1
-            response_text = resp
+            try:
+                print("\n option list : ",option_list)
+                for i in option_list:
+                    resp =  resp + str(sno) +" , " + i + '\n'
+                    sno = sno + 1
+                response_text = resp
+            except:
+                response_text = "There is no any product related to your querry"
 
       
 
    
             
-    elif conversation_track[phone] == CS_QUOTE_REVIEW:
+    elif conversation_track == CS_QUOTE_REVIEW:
         resp = ''
         pending_list = get_unstored_from_temp(phone)
         print("\n\n pending list : ",pending_list)
@@ -381,7 +395,11 @@ def assistant(command, phone, mode):
             if(command in ['yes','Yes','Y','y']):
                 resp = "Sure. Please enter next product [name], [quantity], [price]."
                 response_text = resp
-                conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
+                # conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
+                change_conversation_state(phone,CS_QUOTE_PRODUCT_DETAILS)
+                conversation_track,top3_dict = current_state(phone)
+                print("\n conversation track : ",conversation_track)
+
             else:
                 print("go to mail")
                 # get detaisls of this session
@@ -390,7 +408,10 @@ def assistant(command, phone, mode):
                 store_in_permanent(from_temp,phone)
                 # resp = "Im going to send the mail to you."
                 # response_text =  resp
-                conversation_track[phone] = CS_QUOTE_MAILID
+                # conversation_track[phone] = CS_QUOTE_MAILID
+                change_conversation_state(phone,CS_QUOTE_MAILID)
+                conversation_track,top3_dict = current_state(phone)
+                print("\n conversation track : ",conversation_track)
                 
         elif(current_option == 0):
             #ask for the options
@@ -444,7 +465,7 @@ def assistant(command, phone, mode):
         response_text = "Sorry, I don't understand that.\n" + HELP_TEXT
     
 
-    if conversation_track[phone] == CS_QUOTE_MAILID:
+    if conversation_track == CS_QUOTE_MAILID:
         print('c6')
         #Add all 
         table  = get_data_for_excel(phone)
@@ -472,7 +493,10 @@ def assistant(command, phone, mode):
             resp = 'Mail has been sent to '+ to + '. ' + HELP_TEXT 
             response_text = resp
             print(" \n response is : ",type(resp),resp)
-            conversation_track[phone] = CS_QUOTE_START
+            # conversation_track[phone] = CS_QUOTE_START
+            change_conversation_state(phone,CS_QUOTE_MAILID)
+            conversation_track,top3_dict = current_state(phone)
+            print("\n conversation track : ",conversation_track)
 
             
             

@@ -4,9 +4,9 @@ import psycopg2
 import calendar;
 import time;
 import datetime
-
-# conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
-conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
+import ast
+conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
+# conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
 cur = conn.cursor()
 
 
@@ -300,8 +300,9 @@ def get_mail_info(phone):
 def get_user(phone):
     cur.execute("select user_name from users where user_phone = %s",(phone,))
     try:
-        user = cur.fetchone()[0]
-        return user
+        user = cur.fetchone()
+        print("\n user : ",user)
+        return user[0]
     except:
         return "new"
 
@@ -343,6 +344,39 @@ def sendmail(file_name,person_name,phone_number,email_id,cc):
     print(r.text,type(r.text))
 
     return r.text
+
+def check_number_in_track(phone):
+    cur.execute("select state from conversation_track where phone = %s",(phone,))
+    res = cur.fetchone()
+    if(res == None):
+        return 0
+    else :
+        return 1
+
+def current_state(phone):
+    cur.execute("select state,top3 from conversation_track where phone = %s",(phone,))
+    res = cur.fetchone()
+    return res[0],ast.literal_eval(res[1])
+
+def start_conversation(phone):
+    ts = int(datetime.datetime.now().timestamp())
+    cur.execute(" INSERT INTO conversation_track (phone,top3,state,timestamp) VALUES (%s,%s,%s,%s)",(phone,'[]',0,ts))
+    conn.commit()
+    return 1
+
+def change_conversation_state(phone,state):
+    ts = int(datetime.datetime.now().timestamp())
+    cur.execute("update conversation_track set state = %s where phone = %s",(state,phone,))
+    conn.commit()
+    print("\n state changed to : ",state)
+    return 1
+
+def change_top3(phone,top3_list):
+    ts = int(datetime.datetime.now().timestamp())
+    cur.execute("update conversation_track set top3 = %s where phone = %s",(top3_list,phone))
+    conn.commit()
+    print("\n top3_list changed to : ",str(top3_list))
+    return 1
     
     
     

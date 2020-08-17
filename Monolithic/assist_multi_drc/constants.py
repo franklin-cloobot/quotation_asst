@@ -44,15 +44,9 @@ COL_PRODUCT = 'Product Description'
 CS_QUOTE_START              = 0
 CS_QUOTE_CLIENT             = 1
 CS_QUOTE_PRODUCT_DETAILS    = 2
-CS_QUOTE_COLLECT_REM        = 3
-CS_QUOTE_REVIEW             = 4
-CS_QUOTE_ADDMORE            = 5
-CS_QUOTE_MAILID             = 6
-CS_QUOTE_END                = 7
-
-CS_QUOTE_PRODUCT    = 10
-CS_QUOTE_QUANTITY   = 11
-CS_QUOTE_PRICE      = 12
+CS_QUOTE_REVIEW             = 3
+CS_QUOTE_MAILID             = 4
+CS_QUOTE_END                = 5
 
 
 CONVERSATION_STEP_LIST = [
@@ -60,7 +54,6 @@ CONVERSATION_STEP_LIST = [
     CS_QUOTE_CLIENT,
     CS_QUOTE_PRODUCT_DETAILS,
     CS_QUOTE_REVIEW,
-    CS_QUOTE_ADDMORE,
     CS_QUOTE_MAILID,
     CS_QUOTE_END
 ]
