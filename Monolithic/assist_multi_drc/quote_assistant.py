@@ -298,6 +298,8 @@ def assistant(command, phone, mode):
                     response_text = "Found these options, please select an option: \n"
                     for i,t in enumerate(top3_dict):
                         response_text += str(i+1) + '. ' + t + '\n'
+                else:
+                    response_text = "There is no any clients related to your querry.\n" + HELP_TEXT
         except:
             response_text = "Sorry, there is a problem.\n" + HELP_TEXT
                
@@ -414,9 +416,6 @@ def assistant(command, phone, mode):
                     from_temp = get_for_check(phone)
                     #store this sesion in quotes table
                     store_in_permanent(from_temp,phone)
-                    # resp = "Im going to send the mail to you."
-                    # response_text =  resp
-                    # conversation_track[phone] = CS_QUOTE_MAILID
                     change_conversation_state(phone,CS_QUOTE_MAILID)
                     conversation_track,top3_dict = current_state(phone)
                     print("\n conversation track : ",conversation_track)
@@ -483,8 +482,6 @@ def assistant(command, phone, mode):
             table  = get_data_for_excel(phone)
             print("\n table is :",table)
             name,org = get_user(phone)
-            # user_mail,user_password = get_user_credentials(phone)
-            # print("\n Username,password : ",user_mail,user_password)
             to,manager = get_mail_info(phone)
             ts = datetime.datetime.now().strftime("_%H_%M_%S_%f")
             qfilename =org+ts+".xlsx"
