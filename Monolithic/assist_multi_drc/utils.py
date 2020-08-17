@@ -298,11 +298,11 @@ def get_mail_info(phone):
 
 
 def get_user(phone):
-    cur.execute("select user_name from users where user_phone = %s",(phone,))
+    cur.execute("select user_name,org_id from users where user_phone = %s",(phone,))
     try:
         user = cur.fetchone()
         print("\n user : ",user)
-        return user[0]
+        return user[0],user[1]
     except:
         return "new"
 
@@ -318,7 +318,7 @@ def get_user_credentials(phone):
         return 0,0
 
 
-def sendmail(file_name,person_name,phone_number,email_id,cc):
+def sendmail(file_name,path,person_name,phone_number,email_id,cc):
     # importing the requests library 
     import requests 
     import json
@@ -339,7 +339,7 @@ def sendmail(file_name,person_name,phone_number,email_id,cc):
     headers = {'content-type': 'application/json'}
 
     # r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open('/home/ubuntu/quotationbot/CC_Rosi_Quotation/quotation.xlsx','rb').read()))
-    r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open(os.path.join(here,file_name),'rb').read()))
+    r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open(path + file_name,'rb').read()))
 
     print(r.text,type(r.text))
 

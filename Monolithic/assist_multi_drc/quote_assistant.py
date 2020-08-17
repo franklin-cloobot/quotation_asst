@@ -1,6 +1,6 @@
 from .constants import *
 from .utils import *
-from .anexure_template_int import generate_price_quotation_anex1
+from .templates.cloobot import generate_price_quotation_anex1
 import ast
 from time import strftime
 import pandas as pd
@@ -208,7 +208,7 @@ def assistant(command, phone, mode):
        
     elif 'hello' == command or 'hi' == command:
         name = ''
-        name = get_user(phone)
+        name,org = get_user(phone)
         if(name == 'new'):
             response_text = "Sorry I didn't know you.Your numbers is not in my registry.Please contact your manager for more details.Thankyou see you soon :)"
         else:
@@ -369,13 +369,15 @@ def assistant(command, phone, mode):
             resp = 'Select one of these option related to your query :\n'
             option_list = ast.literal_eval(pending_list[0][1])
             try:
+                if(option_list == []):
+                    response_text = "There is no any product related to your querry,please re Enter."
                 print("\n option list : ",option_list)
                 for i in option_list:
                     resp =  resp + str(sno) +" , " + i + '\n'
                     sno = sno + 1
                 response_text = resp
             except:
-                response_text = "There is no any product related to your querry"
+                response_text = "There is no any product related to your querry,please re Enter."
 
       
 
@@ -470,14 +472,19 @@ def assistant(command, phone, mode):
         #Add all 
         table  = get_data_for_excel(phone)
         print("\n table is :",table)
-        name = get_user(phone)
+        name,org = get_user(phone)
         # user_mail,user_password = get_user_credentials(phone)
         # print("\n Username,password : ",user_mail,user_password)
         to,manager = get_mail_info(phone)
-        qfilename ="quotation.xlsx"
-        # qfilename = "/var/www/flaskapp_quote_testing/quotation_asst/quotation.xlsx"
-        generate_price_quotation_anex1(qfilename, table)
-        response_status = sendmail('quotation.xlsx',name,phone,to,manager)
+        ts = datetime.datetime.now().strftime("_%H_%M_%S_%f")
+        qfilename =org+ts+".xlsx"
+        change_conversation_state(phone,0)
+        conversation_track,top3_dict = current_state(phone)
+        print("\n conversation track : ",conversation_track)
+        path = "/var/www/flaskapp_quote_testing/quotation_asst/Monolithic/assist_multi_drc/quotes/"
+        # path = "D:/devops/backend/qoutation-asst/Monolithic/assist_multi_drc/quotes/"
+        generate_price_quotation_anex1(qfilename,path, table)
+        response_status = sendmail(qfilename,path,name,phone,to,manager)
 
 
       
