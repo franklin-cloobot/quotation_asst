@@ -21,7 +21,7 @@ def generate_price_quotation_anex1(filename,path, multi_quote_list):
     here = os.path.dirname(__file__)
     print('In gpqa, mql::'+str(multi_quote_list))
 
-    workbook = xlsxwriter.Workbook(path + filename)
+    workbook = xlsxwriter.Workbook(os.path.join(here,filename))
 
     worksheet = workbook.add_worksheet()
     # worksheet2 = workbook.add_worksheet()
