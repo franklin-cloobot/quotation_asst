@@ -334,7 +334,7 @@ def sendmail(file_name,path,person_name,phone_number,email_id,cc):
     
     
 
-    mime_type = filetype.guess('quotation.xlsx')
+    mime_type = filetype.guess(path+file_name)
 
     headers = {'content-type': 'application/json'}
 
