@@ -24,10 +24,6 @@ HELP_TEXT = """You can use these commands and I'll help you out:\n
 """
 
 CONTACT_TEXT = """
-Aravindh Gunasekaran
-aravindh@cloobot.com
-+91 8754463981
-
 Vinod Thamilarasan
 vinod@cloobot.com
 +91 7904521277
@@ -185,7 +181,7 @@ def assistant(command, phone, mode):
         start_conversation(phone)
         conversation_track = 0
     
-    print("\n\ncommand : ",command,"   Conversation phone track : ",conversation_track,"  Top3 dict : ",top3_dict)
+    print("\n\ncommand : ",command,"   Conversation phone track : ",conversation_track,"  Top3 dict : ",top3_dict,"command length : ",len(command))
     
 
     
@@ -206,7 +202,7 @@ def assistant(command, phone, mode):
         response_text = 'Bye bye Sir. Have a nice day'
         return_status = False
        
-    elif 'hello' == command or 'hi' == command:
+    elif 'hello' in command or 'hi' in command:
         name = ''
         name,org = get_user(phone)
         if(name == 'new'):
@@ -508,7 +504,7 @@ def assistant(command, phone, mode):
                 response_text = resp
                 print(" \n response is : ",type(resp),resp)
                 # conversation_track[phone] = CS_QUOTE_START
-                change_conversation_state(phone,CS_QUOTE_MAILID)
+                change_conversation_state(phone,0)
                 conversation_track,top3_dict = current_state(phone)
                 print("\n conversation track : ",conversation_track)
 
