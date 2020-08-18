@@ -7,7 +7,7 @@ ORG_ID = 'org_101'
 # AUTHORIZED_RECEIVER_EMAILS = [MY_EMAIL_ID, "vinod@cloobot.com", "aravindh@cloobot.com"]
 MY_EMAIL_ID = "franklin@cloobot.com"
 
-AUTHORIZED_RECEIVER_EMAILS = [MY_EMAIL_ID, "vinod@cloobot.com", "aravindh@cloobot.com"]
+AUTHORIZED_RECEIVER_EMAILS = [MY_EMAIL_ID, "vinod@cloobot.com"]
 # sales_manager_id = "mtpl2"
 chat_conversation = "not stored"
 email_conversation = "not stored"
