@@ -11,14 +11,18 @@ import datetime
 import time
 from .components.pagedata import *
 from .components.valtoken import *
+from .bachend_insert import *
 # from components.pagedata import *
 # from components.valtoken import *
+# from bachend_insert import *
 from flask import request, jsonify
 from flask import send_file,make_response
+from flask import Flask, request, redirect, jsonify, send_file
+from flask_cors import CORS,cross_origin
 import base64
 from flask_cors import CORS
 app = flask.Flask(__name__)
-
+from werkzeug.utils import secure_filename
 app.config["DEBUG"] = True
 
 
@@ -33,7 +37,86 @@ JWT_EXP_DELTA_SECONDS = 86400
 
 cur = conn.cursor()
 from functools import wraps
-cors = CORS(app, resources={r"/": {"origins": "*"}})
+UPLOAD_FOLDER = 'Assets'
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+
+ALLOWED_EXTENSIONS = set(['csv', 'xlsx'])
+
+def allowed_file(filename):
+	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+errors = {}
+success = False
+def save(files,dirrectory,filename):
+    for file in files:
+        print("file : ",file)
+        if file and allowed_file(file.filename):
+            # filename = secure_filename(file.filename)
+            file.save("Assets/"+dirrectory+ filename)
+            success = True
+        else:
+            errors[file.filename] = 'File type is not allowed'
+    return success,errors
+@app.route('/multiple-files-upload', methods=['POST', 'GET','OPTIONS'])
+@cross_origin(supports_credentials=True)
+def upload_file():
+    # if request.method == 'POST':
+    # return 'sss'
+	# if 'files[]' not in request.files:
+    org_id = request.headers['user_info']
+    print(org_id)
+    print(request.files)
+    if 'user' not in request.files and 'client' not in request.files and 'product' not in request.files:
+        print("no attachments")
+        resp = jsonify({'message' : 'No file part in the request'})
+        resp.status_code = 400
+        return resp
+	#
+    
+    
+    ts = datetime.datetime.now().strftime("_%H_%M_%S_%f")
+	# #files = request.files.getlist('files[]')
+    if 'user' in request.files:
+        
+        filename = "user" + ts + ".xlsx"
+        files = request.files.getlist('user')
+        success,errors = save(files,"user/",filename)
+        user_id = request.headers['user_id']
+        insert_user(filename,org_id,user_id)
+    elif 'client' in request.files:
+        filename = "client" + ts+ ".xlsx"
+        files = request.files.getlist('client')
+        success,errors = save(files,"client/",filename)
+        insert_client(filename,org_id)
+    else:
+        filename = "product" + ts + ".xlsx"
+        files = request.files.getlist('product')
+        success,errors = save(files,"product/",filename)
+        
+        insert_product(filename,org_id)
+    print("file : ",files)
+
+    
+
+    if success and errors:
+        # insert_data()
+        errors['message'] = 'File(s) successfully uploaded'
+        resp = jsonify(errors)
+        resp.status_code = 500
+        return resp
+
+    if success:
+        # insert_data()
+        resp = jsonify({'message' : 'Files successfully uploaded'})
+        resp.status_code = 201
+        return resp
+    else:
+        resp = jsonify(errors)
+        resp.status_code = 500
+    return resp
 
 
 
