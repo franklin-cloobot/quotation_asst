@@ -22,7 +22,6 @@ from flask_cors import CORS,cross_origin
 import base64
 from flask_cors import CORS
 app = flask.Flask(__name__)
-from werkzeug.utils import secure_filename
 app.config["DEBUG"] = True
 
 
@@ -54,7 +53,6 @@ def save(files,dirrectory,filename):
     for file in files:
         print("file : ",file)
         if file and allowed_file(file.filename):
-            # filename = secure_filename(file.filename)
             file.save("Assets/"+dirrectory+ filename)
             success = True
         else:
