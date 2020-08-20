@@ -16,12 +16,13 @@ from .bachend_insert import *
 # from components.valtoken import *
 # from bachend_insert import *
 from flask import request, jsonify
-from flask import send_file,make_response
+from flask import send_file,make_response,render_template
 from flask import Flask, request, redirect, jsonify, send_file
 from flask_cors import CORS,cross_origin
 import base64
 from flask_cors import CORS
-app = flask.Flask(__name__)
+# app = flask.Flask(__name__)
+app = flask.Flask(__name__, template_folder="templates")
 app.config["DEBUG"] = True
 
 
@@ -801,7 +802,18 @@ def register():
     print("mydata : ",mydata)
     return {"status":"ok"}
 
-
+cors = CORS(app, resources={r"/product_list": {"origins": "*"}})
+@app.route('/product_list', methods=['GET','POST'])
+def product_table():
+    ##print(request)
+    name = "franklin"
+    phone = request.args.get('phone')
+    print("\n phone : ",phone)
+    cur.execute("select * from product where org_id = (select org_id from users where user_phone = %s)",(phone,))
+    products = [list(each) for each in cur.fetchall()]
+    print("\n products : ",products)
+    print(products)
+    return render_template('index.html', table = products)
 
 
 @app.route("/test")
