@@ -65,9 +65,9 @@ def upload_file():
     # if request.method == 'POST':
     # return 'sss'
 	# if 'files[]' not in request.files:
-    org_id = request.form['org_id']
+    org_id = request.form.get('org_id')
     print(org_id)
-    print(request.form['user_id'])
+    
     if 'user' not in request.files and 'client' not in request.files and 'product' not in request.files:
         print("no attachments")
         resp = jsonify({'message' : 'No file part in the request'})
@@ -83,7 +83,7 @@ def upload_file():
         filename = "user" + ts + ".xlsx"
         files = request.files.getlist('user')
         success,errors = save(files,"user/",filename)
-        user_id = request.form['user_id']
+        user_id = request.form.get('user_id')
         insert_user(filename,org_id,user_id)
     elif 'client' in request.files:
         filename = "client" + ts+ ".xlsx"
