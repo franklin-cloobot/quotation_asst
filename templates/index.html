@@ -1,0 +1,79 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greeting</title>
+</head>
+
+<body>
+
+    <p>
+        Hello {{ name }}
+    </p>
+
+</body>
+
+</html> -->
+
+
+<h2>My Products</h2>
+
+<input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
+
+<table id="myTable" border="2px">
+    <tr class="header">
+        <th >product code</th>
+        <th >Description</th>
+        <th> Copy </th>
+    </tr>
+    {% for row in table %}
+        
+        <tr > 
+            <td id="mytext" >{{row.4}}</td>
+            <td>{{row.2}}</td>
+            <td ><button onclick="copy_function({{row}})">Copy Part Code</button></td>
+        </tr>
+        
+    {% endfor %}
+</table>
+
+<script>
+function myFunction() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+function copy_function(id){
+//   var value = document.getElementById(id).innerHTML;
+  var input_temp = document.createElement("input");
+  input_temp.value = id[4];
+  console.log(id[4])
+  document.body.appendChild(input_temp);
+  input_temp.select();
+  document.execCommand("copy");
+  document.body.removeChild(input_temp);
+  alert("Copied the text: " + input_temp.value);
+};
+
+
+</script>
+
+</body>
+</html>
+
+

@@ -9,7 +9,7 @@ import base64
 import re
 import requests
 import datetime
-
+import urllib
 
 
 
@@ -257,47 +257,49 @@ def assistant(command, phone, mode):
     
     
     elif conversation_track == CS_QUOTE_CLIENT:
+        # try:
+        print('c2')
+        conversation_track,top3_dict = current_state(phone)
+        tmp_command = None
         try:
-            print('c2')
+            tmp_command = int(command)
+        except ValueError:
+            pass
+
+    
+        if tmp_command and tmp_command >= 1 and tmp_command <= MAX_SEARCH_RESULTS:
+            command = top3_dict[int(command)-1]
+            command = str(command).strip().lower()
+
+
+        tmp, options = check_dealers(command,phone)
+        if tmp:
+            
+            # new session is started
+            store_dealers_in_session(phone,tmp)
+            args = {"phone": phone}
+            url = "165.22.211.77/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
+            resp = "Got it "+tmp+". Please enter product in  the format [name],[quantity],[price].If you want more than one product give each of them in new line using the correct format as said before.If u not sure about the product see the list of products\n here : " + url
+            response_text = resp
+            # conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
+            change_conversation_state(phone,CS_QUOTE_PRODUCT_DETAILS)
             conversation_track,top3_dict = current_state(phone)
-            tmp_command = None
-            try:
-                tmp_command = int(command)
-            except ValueError:
-                pass
+            print("\n conversation track : ",conversation_track)
 
-        
-            if tmp_command and tmp_command >= 1 and tmp_command <= MAX_SEARCH_RESULTS:
-                command = top3_dict[int(command)-1]
-                command = str(command).strip().lower()
-
-
-            tmp, options = check_dealers(command,phone)
-            if tmp:
-                
-                # new session is started
-                store_dealers_in_session(phone,tmp)
-                resp = "Got it "+tmp+". Please enter product in  the format [name],[quantity],[price].If you want more than one product give each of them in new line using the correct format as said before."
-                response_text = resp
-                # conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
-                change_conversation_state(phone,CS_QUOTE_PRODUCT_DETAILS)
+        else:
+            if len(options) > 0:
+                # top3_dict[phone] = options
+                change_top3(phone,str(options))
+                change_conversation_state(phone,CS_QUOTE_CLIENT)
                 conversation_track,top3_dict = current_state(phone)
                 print("\n conversation track : ",conversation_track)
-
+                response_text = "Found these options, please select an option: \n"
+                for i,t in enumerate(top3_dict):
+                    response_text += str(i+1) + '. ' + t + '\n'
             else:
-                if len(options) > 0:
-                    # top3_dict[phone] = options
-                    change_top3(phone,str(options))
-                    change_conversation_state(phone,CS_QUOTE_CLIENT)
-                    conversation_track,top3_dict = current_state(phone)
-                    print("\n conversation track : ",conversation_track)
-                    response_text = "Found these options, please select an option: \n"
-                    for i,t in enumerate(top3_dict):
-                        response_text += str(i+1) + '. ' + t + '\n'
-                else:
-                    response_text = "There is no any clients related to your querry.\n" + HELP_TEXT
-        except:
-            response_text = "Sorry, there is a problem.\n" + HELP_TEXT
+                response_text = "There is no any clients related to your querry.\n" + HELP_TEXT
+        # except:
+        #     response_text = "Sorry, there is a problem.\n" + HELP_TEXT
                
 
     elif conversation_track == CS_QUOTE_PRODUCT_DETAILS:
