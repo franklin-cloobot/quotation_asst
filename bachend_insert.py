@@ -29,7 +29,8 @@ cur = conn.cursor()
 ########################################################  clients table ############################################
 
 def insert_client(filename,org_id):
-    path = "Assets/client/"
+    # path = "Assets/client/"
+    path = "/var/www/flaskapp_quote_testing/quotation_asst/Assets/client/"
     SHEET = 0
     excel_data_df = pandas.read_excel(path+filename, sheet_name=SHEET)
     print(excel_data_df)
@@ -49,7 +50,8 @@ def insert_client(filename,org_id):
 ################################################## product table #####################################################
 
 def insert_product(filename,org_id):
-    path = "Assets/product/"
+    # path = "Assets/product/"
+    path = "/var/www/flaskapp_quote_testing/quotation_asst/Assets/product/"
     SHEET = 0
     excel_data_df = pandas.read_excel(path+filename, sheet_name=SHEET)
     print(excel_data_df)
@@ -69,7 +71,8 @@ def insert_product(filename,org_id):
 
 
 def insert_user(filename,org_id,user_id):
-    path = "Assets/user/"
+    # path = "Assets/user/"
+    path = "/var/www/flaskapp_quote_testing/quotation_asst/Assets/user/"
     SHEET = 0
     excel_data_df = pandas.read_excel(path+filename, sheet_name=SHEET)
     print(excel_data_df)
