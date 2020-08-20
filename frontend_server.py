@@ -54,7 +54,8 @@ def save(files,dirrectory,filename):
     for file in files:
         print("file : ",file)
         if file and allowed_file(file.filename):
-            file.save("Assets/"+dirrectory+ filename)
+            # file.save("Assets/"+dirrectory+ filename)
+            file.save("/var/www/flaskapp_quote_testing/quotation_asst/Assets/"+dirrectory+ filename)
             success = True
         else:
             errors[file.filename] = 'File type is not allowed'
