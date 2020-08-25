@@ -238,18 +238,7 @@ def faq_update():
         #print("invalid access")
         return {"status":"failed"}
 
-# cors = CORS(app, resources={r"/GetpageNo": {"origins": "*"}})
-# @app.route('/GetpageNo', methods=['GET','POST'])
-# def total_page():
-#     dict_ = request.data.decode("UTF-8")
-#     mydata1 = ast.literal_eval(dict_) 
-#     #print("\n\n\n ************************* : ",mydata1,"\n\n\n")
-#     if valid_user(mydata1['token'])['data'] == 'True':#check whether the user is valid
-#         return {"total_items":get_page_no('faq',mydata1['search'])}
-#     else:
-#         #print("invalid access")
-#         return {"status":"failed"}
-        
+
 cors = CORS(app, resources={r"/report_graph": {"origins": "*"}})
 @app.route('/report_graph', methods=['GET','POST'])
 def repot_page_graph():
@@ -495,6 +484,86 @@ def invite():
         #print("invalid access")
         return {"status":"failed"}
 
+
+cors = CORS(app, resources={r"/client_profile": {"origins": "*"}})
+@app.route('/client_profile', methods=['GET','POST'])
+def client_data():
+     
+    output = {}
+    print("\n\n\n invite values ###########",request.data,"\n\n\n")
+    dict_ = request.data.decode("UTF-8")
+    mydata1 = ast.literal_eval(dict_)
+    if valid_user(mydata1['token'])['data'] == 'True': #check whether the user is valid
+        print("*** valid token ******")
+        print(mydata1,mydata1['data']['user_org_id'])
+        print(mydata1['data']['user_org_id'])
+        
+
+        cur.execute("select distinct(c_name) from client where org_id = %s",(mydata1['data']['user_org_id'],))
+        client_list = cur.fetchall()
+        client_list = [i[0] for i in client_list]
+        print("client lsit : ",client_list)
+        if(mydata1['client'] == "initial"):
+            client = client_list[0]
+        else:
+            client = mydata1['client']
+        cur.execute("select c_id from client where c_name = %s limit 1",(client,))
+        c_id = cur.fetchone()[0]
+        print("\n info : ",client,mydata1['data']['user_org_id'],mydata1['from'],mydata1['to'])
+        # cur.execute("select sum(qty * unit_price),avg(qty * unit_price),max(qty * unit_price),min(qty * unit_price) from quotes where c_id = (select c_id from client where c_name = %s) and org_id =%s and timestamp >= %s and timestamp <= %s",(client,mydata1['data']['user_org_id'],mydata1['from'],mydata1['to']))
+        cur.execute("select count(*),sum(qty * unit_price) from quotes q where c_id = (select c_id from client where c_name = %s limit 1) and org_id =%s and timestamp >= %s and timestamp <= %s",(client,mydata1['data']['user_org_id'],mydata1['from']/1000,mydata1['to']/1000))
+        total_val = cur.fetchone()[1]
+        
+        if(total_val):
+            pass
+        else:
+            total_val = 0
+        cur.execute("select sum(qty * unit_price) from quotes where org_id =%s and timestamp >= %s and timestamp <= %s group by c_id",(mydata1['data']['user_org_id'],mydata1['from']/1000,mydata1['to']/1000))
+        total_value = cur.fetchall()
+        output.update({"total_value": {"value":total_val,"average":sum([i[0] for i in total_value])/len(total_value),"max":max(total_value)[0],"min":min(total_value)[0]}})
+        cur.execute("select count(*) from quotes where c_id = (select c_id from client where c_name = %s limit 1) and org_id =%s and timestamp >= %s and timestamp <= %s",(client,mydata1['data']['user_org_id'],mydata1['from']/1000,mydata1['to']/1000))
+        total_num = cur.fetchone()[0]
+        cur.execute("select count(*) from quotes where  org_id =%s and timestamp >= %s and timestamp <= %s group by c_id",(mydata1['data']['user_org_id'],mydata1['from']/1000,mydata1['to']/1000))
+        total_number = cur.fetchall()
+        output.update({"total_number": {"number":total_num,"average":sum([i[0] for i in total_number])/len(total_number),"max":max(total_number)[0],"min":min(total_number)[0]}})
+        time_list = []
+        date_dict = {}
+        present_list =[]
+        cur.execute("select count(*),timestamp from quotes where c_id = %s group by  timestamp order by timestamp;",(c_id,))
+        for each in cur.fetchall():
+            date = datetime.datetime.fromtimestamp(each[1]).strftime("%d-%b-%Y")
+            print(date)
+            if(date in present_list):
+                print("in :",date)
+                date_dict[date] = date_dict[date] +  1
+            else:
+                print("not :",date)
+                present_list.append(date)
+                date_dict.update({date:1})
+        for each_key,each_value in date_dict.items():
+            time_list.append([each_key,each_value])
+
+        print(time_list)
+        output.update({"date_list":time_list})
+        # print("\n new1 : ",total_val,total_value,max(total_value)[0],min(total_value)[0],sum([i[0] for i in total_value])/len(total_value))
+        # print("\n new2 : ",total_num,total_number,max(total_number),min(total_number))
+        cur.execute("select c.c_name,c.c_id, (select sum(qty*unit_price) from quotes where c_id = c.c_id and timestamp >= %s and timestamp <= %s),(select avg(qty*unit_price) from quotes where c_id = c.c_id and timestamp >= %s and timestamp <= %s),(select max(qty * unit_price) from quotes where c_id = c.c_id and timestamp >= %s and timestamp <= %s),(select min(qty*unit_price) from quotes where c_id = c.c_id and timestamp >= %s and timestamp <= %s) from client c where c.org_id = %s;",(mydata1['from']/1000,mydata1['to']/1000,mydata1['from']/1000,mydata1['to']/1000,mydata1['from']/1000,mydata1['to']/1000,mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
+        all_list = cur.fetchall()
+        output.update({"client_info_list":[]})
+        for i in all_list:
+            if(i[2]!=None):
+                output["client_info_list"].append({"client_name":i[0],"total":i[2],"avg":float(i[3]),"max":i[4],"min":i[5]})
+        print("\n output : ",output)
+        output.update({"client_list":client_list})
+        # print("\n ALL List : ",all_list)
+        
+        
+
+        return {"data":output}
+        # return {"table":output}
+    else:
+        #print("invalid access")
+        return {"status":"failed"}
 
 
 cors = CORS(app, resources={r"/valtoken": {"origins": "*"}})
