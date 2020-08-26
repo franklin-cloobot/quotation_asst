@@ -535,11 +535,11 @@ def client_data():
             print(date)
             if(date in present_list):
                 print("in :",date)
-                date_dict[date] = date_dict[date] +  1
+                date_dict[date] = date_dict[date] +  each[0]
             else:
                 print("not :",date)
                 present_list.append(date)
-                date_dict.update({date:1})
+                date_dict.update({date:each[0]})
         for each_key,each_value in date_dict.items():
             time_list.append([each_key,each_value])
 
