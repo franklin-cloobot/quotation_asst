@@ -279,7 +279,7 @@ def assistant(command, phone, mode):
             store_dealers_in_session(phone,tmp)
             args = {"phone": phone}
             url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
-            resp = "Got it "+tmp+". Please enter product in  the format [name],[quantity],[price].If you want more than one product give each of them in new line using the correct format as said before.If u not sure about the product see the list of products\n here : " + url
+            resp = "Got it "+tmp+". Please enter product in the format [name],[quantity],[price].If you want more than one product give each of them in new line using the correct format as said before.If u not sure about the product see the list of products\n here : " + url
             response_text = resp
             # conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
             change_conversation_state(phone,CS_QUOTE_PRODUCT_DETAILS)
