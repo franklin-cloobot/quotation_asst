@@ -74,10 +74,10 @@ def generate_price_quotation_anex1(filename,path, multi_quote_list):
             'style': 'Table Style Light 11',
             'columns': [{'header': 'S.no','total_string': ' '},
                         {'header': 'Client', 'total_string': ' '},
-                        {'header': 'Description', 'total_string': 'Totals'},
-                        {'header': 'Quantity', 'total_function': 'sum'},
-                        {'header': 'Price', 'total_function': 'sum'},
-                        {'header': 'Total price','total_function': 'sum'},
+                        {'header': 'Description','total_string': ' ' },
+                        {'header': 'Quantity','total_string': ' ' },
+                        {'header': 'Price', 'total_string': ' '},
+                        {'header': 'Total price','total_string': ' '},
                         ]}
 
     # Add a table to the worksheet.
