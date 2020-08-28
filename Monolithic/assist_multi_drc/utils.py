@@ -5,8 +5,8 @@ import calendar;
 import time;
 import datetime
 import ast
-# conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
-conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
+conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
+# conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
 cur = conn.cursor()
 
 
@@ -378,5 +378,16 @@ def change_top3(phone,top3_list):
     print("\n top3_list changed to : ",str(top3_list))
     return 1
     
+
+def get_error_command(error_temp_id):
+    cur.execute("select command from temp where temp_id = %s",(error_temp_id,))
+    command = cur.fetchone()[0]
+    return command
+
+def delete_error_querry(error_temp_id):
+    cur.execute("delete from temp where temp_id = %s",(error_temp_id,))
+    conn.commit()
+    print("\nerror querru deleted : ",error_temp_id)
+    return 1
     
     

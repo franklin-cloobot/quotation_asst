@@ -9,12 +9,12 @@ decimal.getcontext().prec = 5
 
 import datetime
 import time
-from .components.pagedata import *
-from .components.valtoken import *
-from .bachend_insert import *
-# from components.pagedata import *
-# from components.valtoken import *
-# from bachend_insert import *
+# from .components.pagedata import *
+# from .components.valtoken import *
+# from .bachend_insert import *
+from components.pagedata import *
+from components.valtoken import *
+from bachend_insert import *
 from flask import request, jsonify
 from flask import send_file,make_response,render_template
 from flask import Flask, request, redirect, jsonify, send_file
@@ -30,8 +30,8 @@ app.config["DEBUG"] = True
 
 import psycopg2
 import pandas as pd
-conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
-# conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
+# conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
+conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
 
 JWT_EXP_DELTA_SECONDS = 86400
 
@@ -520,6 +520,7 @@ def client_data():
             total_val = 0
         cur.execute("select sum(qty * unit_price) from quotes where org_id =%s and timestamp >= %s and timestamp <= %s group by c_id",(mydata1['data']['user_org_id'],mydata1['from']/1000,mydata1['to']/1000))
         total_value = cur.fetchall()
+        print("\n\n\n\n * \n",total_val,total_value,"\n\n\n")
         output.update({"total_value": {"value":total_val,"average":sum([i[0] for i in total_value])/len(total_value),"max":max(total_value)[0],"min":min(total_value)[0]}})
         cur.execute("select count(*) from quotes where c_id = (select c_id from client where c_name = %s limit 1) and org_id =%s and timestamp >= %s and timestamp <= %s",(client,mydata1['data']['user_org_id'],mydata1['from']/1000,mydata1['to']/1000))
         total_num = cur.fetchone()[0]
@@ -866,8 +867,8 @@ def register():
     ts = int(datetime.datetime.now().timestamp()) 
     dict_ = request.data.decode("UTF-8")
     mydata = ast.literal_eval(dict_)
-    cur.execute("insert into organisation (org_id,org_name,timestamp) values(%s,%s,%s);",(mydata['company_name'][:3]+"101",mydata['company_name'][:3],ts))
-    cur.execute(" INSERT INTO users (user_id,org_id,user_name,user_password,user_phone,user_email,auth_level,manager_id,timestamp,product_constraints,location_constraints) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",('u'+mydata['company_name'][:3]+'1',mydata['company_name'][:3]+"101",mydata['user_name'],mydata['password'],mydata['phone'][3:],mydata['email_id'],4,'u'+mydata['company_name'][:3]+'1',ts,'[]','[]'))
+    cur.execute("insert into organisation (org_id,org_name,timestamp) values(%s,%s,%s);",(mydata['company_name'][:3]+str(ts),mydata['company_name'][:3],ts))
+    cur.execute(" INSERT INTO users (user_id,org_id,user_name,user_password,user_phone,user_email,auth_level,manager_id,timestamp,product_constraints,location_constraints) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",('u'+mydata['company_name'][:3]+'1',mydata['company_name'][:3]+str(ts),mydata['user_name'],mydata['password'],mydata['phone'][3:],mydata['email_id'],4,'u'+mydata['company_name'][:3]+'1',ts,'[]','[]'))
     conn.commit()
     print("mydata : ",mydata)
     return {"status":"ok"}
