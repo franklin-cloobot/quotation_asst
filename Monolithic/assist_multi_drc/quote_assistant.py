@@ -1,6 +1,6 @@
 from .constants import *
 from .utils import *
-from .anexure_template_int import generate_price_quotation_anex1
+from .templates.cloobot import generate_price_quotation_anex1
 import ast
 from time import strftime
 import pandas as pd
@@ -9,31 +9,21 @@ import base64
 import re
 import requests
 import datetime
+import urllib
 
 
 
-product_dict={}
-price_dict={}
-dealer_dict={}
-quantity_dict = {}
-receiver_email_dict = {}
 
-multi_quote_dict={}
 
-conversation_track = {}
-top3_dict = {}
-pif_dict = {}
-edit_on= 0
+conversation_track = 0
+top3_dict = []
+
 HELP_TEXT = """You can use these commands and I'll help you out:\n
 - get quote / quotation or : starts the conversation to generate price quotation.\n
 - connect with cloobot : displays phone number of a Sales Manager of Cloobot Techlabs
 """
 
 CONTACT_TEXT = """
-Aravindh Gunasekaran
-aravindh@cloobot.com
-+91 8754463981
-
 Vinod Thamilarasan
 vinod@cloobot.com
 +91 7904521277
@@ -179,39 +169,30 @@ def check_product_details_v2(command,phone):
 
 
 def assistant(command, phone, mode):
-    global product_dict, dealer_dict, quantity_dict, receiver_email_dict, conversation_track, multi_quote_dict
+    top3_dict = []
+    if(check_number_in_track(phone)):
+        conversation_track,top3_dict = current_state(phone)
+        if top3_dict == '[]':
+            top3_dict = []
+        else:
+            top3_dict = top3_dict
+            print("\n top3 : ",top3_dict,type(top3_dict))
+    else:
+        start_conversation(phone)
+        conversation_track = 0
     
-    if phone not in product_dict:
-        product_dict[phone] = ''
-
-    if phone not in dealer_dict:
-        dealer_dict[phone] = ''
+    print("\n\ncommand : ",command,"   Conversation phone track : ",conversation_track,"  Top3 dict : ",top3_dict,"command length : ",len(command))
     
-    if phone not in quantity_dict:
-        quantity_dict[phone] = 0   
+
     
-    if phone not in receiver_email_dict:
-        receiver_email_dict[phone] = ''  
 
-    if phone not in conversation_track:
-        conversation_track[phone] = CS_QUOTE_START
-
-    if phone not in top3_dict:
-        top3_dict[phone] = []
-
-    if phone not in pif_dict:
-        pif_dict[phone] = []
     
-    print('Convo:',conversation_track[phone])
+    
+    print('Convo:',conversation_track)
     response_text = ""
     return_status = True
-    take_next_step_convo = True
-    options_found_flag = False
-    add_more_product_flag = False
-
    
-    pif_options = []
-    pif_review_option = ''
+
    
 
     
@@ -221,13 +202,14 @@ def assistant(command, phone, mode):
         response_text = 'Bye bye Sir. Have a nice day'
         return_status = False
        
-    elif 'hello' == command or 'hi' == command:
+    elif 'hello' in command or 'hi' in command:
         name = ''
-        name = get_user(phone)
+        name,org = get_user(phone)
         if(name == 'new'):
             response_text = "Sorry I didn't know you.Your numbers is not in my registry.Please contact your manager for more details.Thankyou see you soon :)"
         else:
             response_text = 'Hello '+ name+'\n\n'+HELP_TEXT
+        
 
 
     elif 'help me' in command:
@@ -238,13 +220,14 @@ def assistant(command, phone, mode):
 
 
     #ask me anything
-    elif 'quotation' in command or 'quote' in command or (phone in conversation_track and conversation_track[phone] == CS_QUOTE_START):
+    elif 'quotation' in command or 'quote' in command or (conversation_track == CS_QUOTE_START):
         print('c1')
         
         #initialising
-        dealer_dict[phone]=''
-        receiver_email_dict[phone] = None
-        conversation_track[phone] = CS_QUOTE_START
+        
+        change_conversation_state(phone,CS_QUOTE_START)
+        conversation_track,top3_dict = current_state(phone) 
+        # conversation_track[phone] = CS_QUOTE_START
         create_new_session(phone)
        
         
@@ -252,62 +235,85 @@ def assistant(command, phone, mode):
         try:
            
 
-            resp = '''. What's the name of the client. Here are a list of common clients or give the client name you want\n'''
+            resp = '''What's the name of the client. Here are a list of common clients or give the client name you want\n'''
             
             resp += 'Please enter a choice 1-10:\n'            
-            top3_dict[phone] = get_top3_values(INFO_DEALERS,phone)
-            for i,t in enumerate(top3_dict[phone]):
+            # top3_dict[phone] = get_top3_values(INFO_DEALERS,phone)
+            print("top3_dict : ",get_top3_values(INFO_DEALERS,phone),type(get_top3_values(INFO_DEALERS,phone)))
+            change_top3(phone,str(get_top3_values(INFO_DEALERS,phone)))
+            conversation_track,top3_dict = current_state(phone)
+            for i,t in enumerate(top3_dict):
                 resp += str(i+1) + '. ' + t + '\n'
             response_text = resp
             
-            conversation_track[phone] = CS_QUOTE_CLIENT
+            # conversation_track[phone] = CS_QUOTE_CLIENT
+            change_conversation_state(phone,CS_QUOTE_CLIENT)
+            conversation_track,top3_dict = current_state(phone)
+            print("\n conversation track : ",conversation_track)
 
         except Exception as e:
             print(e)
-            response_text = e
+            response_text = "Sorry, there is a problem.\n" + HELP_TEXT
     
     
-    elif conversation_track[phone] == CS_QUOTE_CLIENT:
-        print('c3')
-
-        tmp_command = None
+    elif conversation_track == CS_QUOTE_CLIENT:
         try:
-            tmp_command = int(command)
-        except ValueError:
-            pass
+            print('c2')
+            conversation_track,top3_dict = current_state(phone)
+            tmp_command = None
+            try:
+                tmp_command = int(command)
+            except ValueError:
+                pass
 
-       
-        if tmp_command and tmp_command >= 1 and tmp_command <= MAX_SEARCH_RESULTS:
-            command = top3_dict[phone][int(command)-1]
-            command = str(command).strip().lower()
+        
+            if tmp_command and tmp_command >= 1 and tmp_command <= MAX_SEARCH_RESULTS:
+                command = top3_dict[int(command)-1]
+                command = str(command).strip().lower()
 
 
-        tmp, options = check_dealers(command,phone)
-        if tmp:
-            dealer_dict[phone] = tmp
-            # new session is started
-            store_dealers_in_session(phone,tmp)
-            resp = "Got it. "+dealer_dict[phone]+". Please enter product in  the format [name],[quantity],[price].If you want more than one product give each of them in new line using the correct format as said before."
-            response_text = resp
-            conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
-        else:
-            if len(options) > 0:
-                top3_dict[phone] = options
-                response_text = "Found these options, please select an option: \n"
-                for i,t in enumerate(top3_dict[phone]):
-                    response_text += str(i+1) + '. ' + t + '\n'
+            tmp, options = check_dealers(command,phone)
+            if tmp:
+                
+                # new session is started
+                store_dealers_in_session(phone,tmp)
+                args = {"phone": phone}
+                url = "localhost:8001/product_list?{}".format(urllib.parse.urlencode(args))
+                # url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
+                resp = "Got it "+tmp+". Please enter product in the format [name],[quantity],[price].If you want more than one product give each of them in new line using the correct format as said before.If u not sure about the product see the list of products\n here : " + url
+                response_text = resp
+                # conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
+                change_conversation_state(phone,CS_QUOTE_PRODUCT_DETAILS)
+                conversation_track,top3_dict = current_state(phone)
+                print("\n conversation track : ",conversation_track)
+
+            else:
+                if len(options) > 0:
+                    # top3_dict[phone] = options
+                    change_top3(phone,str(options))
+                    change_conversation_state(phone,CS_QUOTE_CLIENT)
+                    conversation_track,top3_dict = current_state(phone)
+                    print("\n conversation track : ",conversation_track)
+                    response_text = "Found these options, please select an option: \n"
+                    for i,t in enumerate(top3_dict):
+                        response_text += str(i+1) + '. ' + t + '\n'
+                else:
+                    response_text = "There is no any clients related to your querry.Please re enter.\n" + HELP_TEXT
+        except:
+            response_text = "Sorry, there is a problem.\n" + HELP_TEXT
                
 
-    elif conversation_track[phone] == CS_QUOTE_PRODUCT_DETAILS:
-        print('c2')
+    elif conversation_track == CS_QUOTE_PRODUCT_DETAILS:
+        print('c3')
 
-        product_dict[phone]=''
-        price_dict[phone]=0  
-        quantity_dict[phone] = 0
-        top3_dict[phone] = []
-        pif_dict[phone] = False
+        
+         
+        # try:
+        # top3_dict[phone] = []
+        change_top3(phone,'[]')
+    
 
-       
+    
         command = str(command).strip().lower()
 
         print('command::',command)
@@ -329,13 +335,16 @@ def assistant(command, phone, mode):
             print("\n\n options list : ",option_list)
             store_confirmed_product(pending[0],option_list[int(command)-1])
 
-       
+    
 
             
 
         else:
             # store the correct product with correct nname and change status as 'Yes'
-            store_in_temp(command,phone)
+            try:
+                store_in_temp(command,phone)
+            except :
+                print("\n\n error in storing")
         
         # this get all from temp with status 'no'
         pending_list = get_unstored_from_temp(phone)
@@ -357,71 +366,45 @@ def assistant(command, phone, mode):
                 sno = sno + 1
             resp = resp + "\n\nDo you want to add one more product? (Yes / No).If 'no' means Im going to send the quotation details to you via mail."
             response_text = resp
-            conversation_track[phone] = CS_QUOTE_REVIEW
+            # conversation_track[phone] = CS_QUOTE_REVIEW
+            change_conversation_state(phone,CS_QUOTE_REVIEW)
+            conversation_track,top3_dict = current_state(phone)
+            print("\n conversation track : ",conversation_track)
         else:
             # if product i mismatched this part ask for correct option
             sno = 1
-            resp = 'Select one of these option related to your query\n'
+            resp = 'Select one of these option related to your query :\n'
             option_list = ast.literal_eval(pending_list[0][1])
-            print("\n option list : ",option_list)
-            for i in option_list:
-                resp =  resp + str(sno) +" , " + i + '\n'
-                sno = sno + 1
-            response_text = resp
+            try:
+                if(option_list == [] or option_list == None):
+                    error_querry = get_error_command(pending_list[0][0])
+                    print("\n\nerror querry : ",error_querry)
+                    delete_error_querry(pending_list[0][0])
+                    args = {"phone": phone}
+                    url = "localhost:8001/product_list?{}".format(urllib.parse.urlencode(args))
+                    change_conversation_state(phone,CS_QUOTE_PRODUCT_DETAILS)
+                    conversation_track,top3_dict = current_state(phone)
+                    print("\n conversation track : ",conversation_track)
+                    # url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
+                    response_text = "There is no any product related to your query or the inpuformat is wrong for command '" + error_querry + "' ,please re enter in correct format" + "\nPlease enter product in the format [name],[quantity],[price].If you want more than one product give each of them in new line using the correct format as said before.If u not sure about the product see the list of products\n here : " + url
+                    
+                else:
+                    print("\n option list : ",option_list)
+                    for i in option_list:
+                        resp =  resp + str(sno) +" , " + i + '\n'
+                        sno = sno + 1
+                    response_text = resp
+            except:
+                response_text = "Sorry, there is a problem.\n" + HELP_TEXT
+        # except:
+        #     response_text = "Sorry, there is a problem.\n" + HELP_TEXT
 
       
 
-    elif conversation_track[phone] == CS_QUOTE_PRODUCT:
-        print('c2')
-
-        tmp_command = None
-        try:
-            tmp_command = int(command)
-        except ValueError:
-            pass
-
-        if tmp_command and tmp_command >= 1 and tmp_command <= MAX_SEARCH_RESULTS:
-            print('found choice::',top3_dict[phone],'::',top3_dict[phone][int(command)-1])
-            command = top3_dict[phone][int(command)-1]
-            command = str(command).strip().lower()
-
-        print('command::',command)
-
-        tmp, options = check_prod(command,phone)
-        
-        if tmp:
-            print('r1')
-            product_dict[phone] = tmp
-
-        
-
-        else:
-          
-            if len(options) > 0:
-                pif_options = options
-              
-
-    elif conversation_track[phone] == CS_QUOTE_QUANTITY:
-        print('c4')
-
-        tmp = isQty(command)
-        if tmp:
-            quantity_dict[phone] = tmp
-        else:
-            pass
-           
-
-    elif conversation_track[phone] == CS_QUOTE_PRICE:
-        print('c41')
-
-        tmp = isPrice(command)
-        if tmp:
-            price_dict[phone] = tmp
-           
-        else:
-            pass
+   
             
-    elif conversation_track[phone] == CS_QUOTE_REVIEW:
+    elif conversation_track == CS_QUOTE_REVIEW:
+        
         resp = ''
         pending_list = get_unstored_from_temp(phone)
         print("\n\n pending list : ",pending_list)
@@ -433,24 +416,36 @@ def assistant(command, phone, mode):
             print("\n Yes or No\n")
             
             if(command in ['yes','Yes','Y','y']):
-                resp = "Sure. Please enter next product [name], [quantity], [price]."
+                print("\n\n Yes")
+                args = {"phone": phone}
+                # url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
+                url = "localhost:8001/product_list?{}".format(urllib.parse.urlencode(args))
+                resp = "Sure. Please enter next product [name],[quantity],[price].\nUse this link for your product code reference : " + url
                 response_text = resp
-                conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
+                # conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
+                change_conversation_state(phone,CS_QUOTE_PRODUCT_DETAILS)
+                conversation_track,top3_dict = current_state(phone)
+                print("\n conversation track : ",conversation_track)
+
             else:
+                print("go to mail")
                 # get detaisls of this session
                 from_temp = get_for_check(phone)
                 #store this sesion in quotes table
                 store_in_permanent(from_temp,phone)
-                # resp = "Im going to send the mail to you."
-                # response_text =  resp
-                conversation_track[phone] = CS_QUOTE_MAILID
+                change_conversation_state(phone,CS_QUOTE_MAILID)
+                conversation_track,top3_dict = current_state(phone)
+                print("\n conversation track : ",conversation_track)
                 
         elif(current_option == 0):
             #ask for the options
             store_current_option(phone,int(command))
             which_detail_edit = int(command)%3
             if(which_detail_edit == 1):
-                resp = "what is the product."
+                args = {"phone": phone}
+                # url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
+                url = "localhost:8001/product_list?{}".format(urllib.parse.urlencode(args))
+                resp = "what is the product." + "\nUse this link for your product code reference : " + url
             elif(which_detail_edit == 2):
                 resp = "what is the quantity."
             else:
@@ -469,7 +464,7 @@ def assistant(command, phone, mode):
                 resp = "All correct? Please enter a choice 1-"+str(option_length)+" to change:" 
                 sno = 1
                 for i in range(len(from_temp)):
-                    resp = resp + "\n product : "+str(i) + '\n'
+                    resp = resp + "\n product : "+str(i+1) + '\n'
                     resp = resp + str(sno) + " . Product is "+ from_temp[i][1]  + '\n'
                     sno = sno + 1
                     resp = resp + str(sno) +" . Quantity is " + from_temp[i][2] + " nos" + '\n'
@@ -480,6 +475,9 @@ def assistant(command, phone, mode):
                 response_text = resp
             store_current_option(phone,int(0))
             print("\n option set to 0\n")
+        # except:
+        # response_text = "Sorry, there is a problem.\n" + HELP_TEXT
+
             
 
 
@@ -497,81 +495,52 @@ def assistant(command, phone, mode):
         response_text = "Sorry, I don't understand that.\n" + HELP_TEXT
     
 
-    if conversation_track[phone] == CS_QUOTE_MAILID:
-        print('c6')
-        #Add all 
-        table  = get_data_for_excel(phone)
-        print("\n table is :",table)
-        name = get_user(phone)
-        # user_mail,user_password = get_user_credentials(phone)
-        # print("\n Username,password : ",user_mail,user_password)
-        to,manager = get_mail_info(phone)
-        qfilename = "quotation.xlsx"
-        generate_price_quotation_anex1(qfilename, table)
-        response_status = sendmail('quotation.xlsx',name,phone,to,manager)
+    if conversation_track == CS_QUOTE_MAILID:
+        try:
+            print('c6')
+            #Add all 
+            table  = get_data_for_excel(phone)
+            print("\n table is :",table)
+            name,org = get_user(phone)
+            to,manager = get_mail_info(phone)
+            ts = datetime.datetime.now().strftime("_%H_%M_%S_%f")
+            qfilename =org+ts+".xlsx"
+            
+            path = "/var/www/flaskapp_quote_testing/quotation_asst/Monolithic/assist_multi_drc/quotes/"
+            # path = "D:/devops/backend/qoutation-asst/Monolithic/assist_multi_drc/quotes/"
+            generate_price_quotation_anex1(qfilename,path, table)
+            response_status = sendmail(qfilename,path,name,phone,to,manager)
+            change_conversation_state(phone,0)
+            conversation_track,top3_dict = current_state(phone)
+            print("\n conversation track : ",conversation_track)
 
-
-      
         
-    
-        print("\n\n\n response text : ",response_status,"\n\n\n")
-
-        if response_status == '''"ok"''':
-            print("\n Mail has been sent \n")
             
-            
-            print("\n\n Yes in \n\n")
-            resp = 'Mail has been sent to '+ to + '. ' + HELP_TEXT 
-            response_text = resp
-            print(" \n response is : ",type(resp),resp)
-            conversation_track[phone] = CS_QUOTE_START
-
-            
-            
-        else:
-            print("\n\n\n\nError While Sending the Mail\n\n\n\n")
         
+            print("\n\n\n response text : ",response_status,"\n\n\n")
 
-    if pif_dict[phone]:
-        print('Inside pif')
-        if not product_dict[phone] or pif_review_option == '1':
-            print('Inside pif prod')
-            product_dict[phone] = ''
-            conversation_track[phone] = CS_QUOTE_PRODUCT            
-            resp = '''Which product? Your most popular products are listed below:\n'''
-            
-            if pif_options:
-                top3_dict[phone] = pif_options    
+            if response_status == '''"ok"''':
+                print("\n Mail has been sent \n")
+                
+                
+                print("\n\n Yes in \n\n")
+                resp = 'Mail has been sent to '+ to + '. ' + HELP_TEXT 
+                response_text = resp
+                print(" \n response is : ",type(resp),resp)
+                # conversation_track[phone] = CS_QUOTE_START
+                change_conversation_state(phone,0)
+                conversation_track,top3_dict = current_state(phone)
+                print("\n conversation track : ",conversation_track)
+
+                
+                
             else:
-                top3_dict[phone] = get_top3_values(INFO_PRODUCTS,phone)
-            
-            for i,t in enumerate(top3_dict[phone]):
-                resp += str(i+1) + '. ' + t + '\n'
-            response_text = resp
+                print("\n\n\n\nError While Sending the Mail\n\n\n\n")
+        except:
+            response_text = "Sorry, there is a problem.\n" + HELP_TEXT
+        
 
-
-        elif not quantity_dict[phone] or pif_review_option == '2':
-            print('Inside pif quant')
-
-            conversation_track[phone] = CS_QUOTE_QUANTITY
-            resp = "What is the quantity in nos?"
-            response_text = resp
-
-        elif not price_dict[phone] or pif_review_option == '3':
-            print('Inside pif price')
-
-            conversation_track[phone] = CS_QUOTE_PRICE
-            resp = "What is the price in INR?"
-            response_text = resp
-        else:
-            conversation_track[phone] = CS_QUOTE_REVIEW
-            resp = "All correct? Please enter a choice 1-3 to change:" + \
-                "\n1. Product is "+ product_dict[phone] + \
-                "\n2. Quantity is " + str(quantity_dict[phone]) +  " nos" + \
-                "\n3. Price is Rs." + str(price_dict[phone]) + \
-                "\n\nDo you want to add one more product? (Yes / No)"
-            pif_dict[phone] = False
-            response_text = resp
+   
 
     
 

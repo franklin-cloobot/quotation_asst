@@ -1,25 +1,81 @@
-<!doctype html>
+<!-- <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <title>ReportDasboard</title>
-  <base href="../static/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename = 'favicon.ico') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-  <script src='https://kit.fontawesome.com/a076d05399.js'></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-  <link href="https://cdn.syncfusion.com/ej2/material.css" rel="stylesheet" />
-<link rel="stylesheet" href="{{ url_for('static', filename = 'styles.d9c86ae8ead0c4434379.css') }}"></head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greeting</title>
+</head>
+
 <body>
-  <app-root></app-root>
-<script src="{{ url_for('static', filename = 'runtime.7d7e9038a1cdbceb3d53.js') }}" defer></script>
-<script src="{{ url_for('static', filename = 'polyfills-es5.23b611c4026a2926c462.js') }}" nomodule defer></script>
-<script src="{{ url_for('static', filename = 'polyfills.66e90b233479af958323.js') }}" defer></script>
-<script src="{{ url_for('static', filename = 'main.40a47960f6bc888c7d6a.js') }}" defer></script>
+
+    <p>
+        Hello {{ name }}
+    </p>
+
+</body>
+
+</html> -->
+
+
+<h2>My Products</h2>
+
+<input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
+
+<table id="myTable" border="2px">
+    <tr class="header">
+        <th >product code</th>
+        <th >Description</th>
+        <th> Copy </th>
+        <th> Check </th>
+    </tr>
+    {% for row in table %}
+        
+        <tr > 
+            <td id="mytext" >{{row.0}}</td>
+            <td>{{row.1}}</td>
+            <td ><button onclick="copy_function({{row}})">Copy Part Code</button></td>
+            <td> <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike"></td>
+        </tr>
+        
+    {% endfor %}
+</table>
+<button type="button">Copy</button>
+<script>
+function myFunction() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+function copy_function(id){
+//   var value = document.getElementById(id).innerHTML;
+  var input_temp = document.createElement("input");
+  input_temp.value = id[4];
+  console.log(id[4])
+  document.body.appendChild(input_temp);
+  input_temp.select();
+  document.execCommand("copy");
+  document.body.removeChild(input_temp);
+  alert("Copied the text: " + input_temp.value);
+};
+
+
+</script>
+
 </body>
 </html>
+
+

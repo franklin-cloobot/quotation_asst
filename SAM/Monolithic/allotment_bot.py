@@ -57,22 +57,20 @@ def assistant_act1(command, phone, mode):
     #greetings
     elif 'hello' in command or 'hi' in command and conversation_track[phone] == 0:
         response_text = """Hi Franklin,
+What's on your mind?
+1. Register a visit
 
-                            What's on your mind?
+Leads:
+2. See leads alloted to you
 
-                            1. Register a visit
+3. Receive for a new lead
 
-                            Leads:
-                            2. See leads alloted to you
+4. Add a new Lead
 
-                            3. Receive for a new lead
+Quotes:
+5. Generate new quote
 
-                            4. Add a new Lead
-
-                            Quotes:
-                            5. Generate new quote
-
-                            6. See previous quotes"""
+6. See previous quotes"""
         
         conversation_track[phone] = NEW_LEAD
     
@@ -83,10 +81,10 @@ def assistant_act1(command, phone, mode):
     elif  conversation_track[phone] == LEAD_DETAILS:
         response_text = """Please enter the following details in this order:
 
-                            Company Name, 
-                            Contact person name,
-                            Phone, 
-                            Email"""
+Company Name, 
+Contact person name,
+Phone, 
+Email"""
         conversation_track[phone] = ENQUIRY
 
     elif  conversation_track[phone] == ENQUIRY:
@@ -95,9 +93,9 @@ def assistant_act1(command, phone, mode):
 
     elif  conversation_track[phone] == AFTER_ENQUIRY:
         response_text = """In order to send a First Contact Welcome email with product collaterals, please select the product list.
-                            http://quote.cloobot.ai/productlist?p=98989898989
+http://quote.cloobot.ai/productlist?p=98989898989
 
-                            Or Send "No" to skip"""
+Or Send "No" to skip"""
         conversation_track[phone] = PRODUCT_DETAILS
 
     elif  conversation_track[phone] == PRODUCT_DETAILS:

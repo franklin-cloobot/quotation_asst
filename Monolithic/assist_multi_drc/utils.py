@@ -4,9 +4,9 @@ import psycopg2
 import calendar;
 import time;
 import datetime
-
-# conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
-conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
+import ast
+conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
+# conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
 cur = conn.cursor()
 
 
@@ -298,10 +298,11 @@ def get_mail_info(phone):
 
 
 def get_user(phone):
-    cur.execute("select user_name from users where user_phone = %s",(phone,))
+    cur.execute("select user_name,org_id from users where user_phone = %s",(phone,))
     try:
-        user = cur.fetchone()[0]
-        return user
+        user = cur.fetchone()
+        print("\n user : ",user)
+        return user[0],user[1]
     except:
         return "new"
 
@@ -317,14 +318,15 @@ def get_user_credentials(phone):
         return 0,0
 
 
-def sendmail(file_name,person_name,phone_number,email_id,cc):
+def sendmail(file_name,path,person_name,phone_number,email_id,cc):
     # importing the requests library 
     import requests 
     import json
     import ast
     import filetype
     import base64
-    
+    import os
+    here = os.path.dirname(__file__)
     url_appsScript = 'https://script.google.com/macros/s/AKfycbw9Ugx8zLu0F_nlew0vDY4vRvIU66qqbFzqEUCQPbpMFHvrFVMk/exec'
 
 
@@ -332,16 +334,60 @@ def sendmail(file_name,person_name,phone_number,email_id,cc):
     
     
 
-    mime_type = filetype.guess('quotation.xlsx')
+    mime_type = filetype.guess(path+file_name)
 
     headers = {'content-type': 'application/json'}
 
     # r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open('/home/ubuntu/quotationbot/CC_Rosi_Quotation/quotation.xlsx','rb').read()))
-    r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open('/var/www/flaskapp_quote_testing/quotation_asst/quotation.xlsx','rb').read()))
+    r = requests.post(url_appsScript+'?file_name={0}&phone_number={1}&email_id={2}&person_name={3}&mime_type={4}&cc={5}'.format(file_name ,phone_number ,email_id ,person_name ,mime_type,cc),data = base64.urlsafe_b64encode(open(path + file_name,'rb').read()))
 
     print(r.text,type(r.text))
 
     return r.text
+
+def check_number_in_track(phone):
+    cur.execute("select state from conversation_track where phone = %s",(phone,))
+    res = cur.fetchone()
+    if(res == None):
+        return 0
+    else :
+        return 1
+
+def current_state(phone):
+    cur.execute("select state,top3 from conversation_track where phone = %s",(phone,))
+    res = cur.fetchone()
+    return res[0],ast.literal_eval(res[1])
+
+def start_conversation(phone):
+    ts = int(datetime.datetime.now().timestamp())
+    cur.execute(" INSERT INTO conversation_track (phone,top3,state,timestamp) VALUES (%s,%s,%s,%s)",(phone,'[]',0,ts))
+    conn.commit()
+    return 1
+
+def change_conversation_state(phone,state):
+    ts = int(datetime.datetime.now().timestamp())
+    cur.execute("update conversation_track set state = %s where phone = %s",(state,phone,))
+    conn.commit()
+    print("\n state changed to : ",state)
+    return 1
+
+def change_top3(phone,top3_list):
+    ts = int(datetime.datetime.now().timestamp())
+    cur.execute("update conversation_track set top3 = %s where phone = %s",(top3_list,phone))
+    conn.commit()
+    print("\n top3_list changed to : ",str(top3_list))
+    return 1
     
+
+def get_error_command(error_temp_id):
+    cur.execute("select command from temp where temp_id = %s",(error_temp_id,))
+    command = cur.fetchone()[0]
+    return command
+
+def delete_error_querry(error_temp_id):
+    cur.execute("delete from temp where temp_id = %s",(error_temp_id,))
+    conn.commit()
+    print("\nerror querru deleted : ",error_temp_id)
+    return 1
     
     

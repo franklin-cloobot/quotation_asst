@@ -877,12 +877,24 @@ cors = CORS(app, resources={r"/product_list": {"origins": "*"}})
 @app.route('/product_list', methods=['GET','POST'])
 def product_table():
     ##print(request)
-    name = "franklin"
-    phone = request.args.get('phone')
-    print("\n phone : ",phone)
-    cur.execute("select * from product where org_id = (select org_id from users where user_phone = %s)",(phone,))
-    products = [list(each) for each in cur.fetchall()]
-    print("\n products : ",products)
+    # name = "franklin"
+    # phone = request.args.get('phone')
+    # print("\n phone : ",phone)
+    # cur.execute("select * from product where org_id = (select org_id from users where user_phone = %s)",(phone,))
+    # products = [list(each) for each in cur.fetchall()]
+    # print("\n products : ",products)
+    products = [
+    ['5543_display',"32 inch display"],
+    ['5435_display',"32 inch display"],
+    ['568_battery',"3000mah battery"],
+    ['3v-charger',"10ams charger"],
+    ['lithium_23',"30v battery"],
+    ['5.5_cable',"32 inch display"],
+    ['5.5 mm optic cable',"5dc cable"],
+    ['ACN109',"Description"],
+    ['PCN908',"Description"],
+    ['HP-108',"Description"]
+                 ]
     print(products)
     return render_template('index.html', table = products)
 

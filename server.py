@@ -33,24 +33,6 @@ def getwhatsappmessage():
     print('Getwhatsapp---json\n\n')
     print(eventsDict)
 
-    # {
-    #   "app": "DemoApp",
-    #   "timestamp": 1580227766370,
-    #   "version": 2,
-    #   "type": "message",
-    #   "payload": {
-    #     "id": "ABEGkYaYVSEEAhAL3SLAWwHKeKrt6s3FKB0c",
-    #     "source": "918x98xx21x4",
-    #     "type": "text",
-    #     "payload": {
-    #       "text": "Hi"
-    #     },
-    #     "sender": {
-    #       "phone": "918x98xx21x4",
-    #       "name": "Smit"
-    #     }
-    #   }
-    # }
     if eventsDict :
         # user = get_user(eventsDict['payload']['sender']['phone'][2:])
         # if(user == 'new'):
@@ -95,7 +77,7 @@ def hello():
     return "Hello, Im bot!"
 
 if __name__ == "__main__":
-    app.run(port = 8001,use_reloader=False)
+    app.run(use_reloader=False)
 # def start_whatsapp_conversation_server():
 #     app.run(port=WHATSAPP_SERVER_PORT,host="0.0.0.0",use_reloader=False)
 
