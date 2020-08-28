@@ -229,3 +229,74 @@ def assistant_act3(command, phone, mode):
   
 
     return 1,response_text
+
+
+def assistant_act4(command, phone, mode):
+    print(command)
+    return_status = True
+    if phone not in conversation_track:
+        conversation_track[phone] = HI
+    
+   
+
+    
+    response_text = ""
+   
+
+   
+
+    # "if statements for executing commands"  
+    command = str(command).strip().lower()
+
+    if 'shutdown' in command or command == "bye":
+        response_text = 'Bye bye Sir. Have a nice day'
+        return_status = False
+       
+    
+    #greetings
+    elif 'hello' in command or 'hi' in command and conversation_track[phone] == 0:
+        response_text = """Hi Franklin,
+What's on your mind?
+1. Register a visit
+
+Leads:
+2. See leads alloted to you
+
+3. Receive for a new lead
+
+4. Add a new Lead
+
+Quotes:
+5. Generate new quote
+
+6. See previous quotes"""
+        
+        conversation_track[phone] = NEW_LEAD
+    
+    elif  conversation_track[phone] == NEW_LEAD:
+        response_text = """You have chosen ANC - 4 items - Rs. 4,00,101 - 27th July 2020
+
+1. Revise the quote
+
+2. Mark as order closed
+
+3. Remove quote""" 
+        conversation_track[phone] = LEAD_DETAILS 
+
+    elif  conversation_track[phone] == LEAD_DETAILS:
+        response_text = """"Congrats! Order closed details:
+
+Product Name: Laptop Macbook
+Qty: 1 units
+Value: Rs. 1,00,101
+
+Product Name: Laptop Lenovo
+Qty: 3 units
+Value: Rs. 3,00,000
+
+Total Value - Rs. 4,00,101
+Total Value: """
+        conversation_track[phone] = ENQUIRY
+
+
+    return 1,response_text
