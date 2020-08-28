@@ -893,8 +893,10 @@ def product_table():
     ['5.5 mm optic cable',"5dc cable"],
     ['ACN109',"Description"],
     ['PCN908',"Description"],
-    ['HP-108',"Description"]
-                 ]
+    ['HP-108',"Description"],
+    ['Laptop Macbook',"8gb ram 1024 ssd"],
+    ['Laptop Lenovo',"16gb ram"]]
+
     print(products)
     return render_template('index.html', table = products)
 

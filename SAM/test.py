@@ -72,17 +72,18 @@ import requests
 # for each_proj in proj_list:
 #     output.append({"project_name":each_proj[1],"project_details":each_proj[2],"project_docs":each_proj[3],"project_man_over":each_proj[4],"project_type":each_proj[5],"project_tl":each_proj[6],"project_estimate":each_proj[7],"project_CE":each_proj[8],"project_allot_time":each_proj[9],"project_done_time":each_proj[10],"project_last_rem":each_proj[11],"project_total_rem":each_proj[12],"project_status":each_proj[13]})
 # print(output)
-def watsapp():
+def watsapp2():
     phone = "919944019577"
-    message = ("""Project 'project 3' is due in 2 hours\
-                        Keep going! Keep going! Remember to self check before sending to APPROVAL.
-                        Select an option: 
-                        (1) Handover the project
-                        (2) Hold the project""")
+    message = """watsapp()
+Approval received from Rajesh for Quote  
+
+ANC - 4 items - Rs. 4,00,101 - 29th July 2020
+
+I have sent you an email with the quote"""
     sampleDict = {  "channel" : "whatsapp",
                         "source" : "917834811114",
                         "destination" : phone,
-                        "src.name":"CloobotServiceBot",
+                        "src.name":"quotetest",
                         "message" : json.dumps({
                             "isHSM":"true",
                             "type": "text",
@@ -92,17 +93,47 @@ def watsapp():
     # jsonData = json.dumps(sampleDict)
     # print(type(jsonData))
     r=requests.post("https://api.gupshup.io/sm/api/v1/msg", 
-        headers={"apikey":"3868773c5a0d4064c0084f6da93fabba"},
+        headers={"apikey":"9a21ca22fb234722c747925571537486"},
         data=sampleDict)
 
     print("\n\nresponse from watsapp",r.text)
 
 
-def sendmail(person_name,user_mail,user_tl_mail,response_mail_message,response_mail_subject):
-    # importing the requests library 
-    import requests 
-    import json
-    url_appsScript = 'https://script.google.com/macros/s/AKfycbxc1YGJ8-s2EMzr6RagyA1Ad0JRGYhsB2qXhCyVzDcX03rt82X8/exec'
+def watsapp():
+    phone = "919944019577"
+    message = """Any new updates on ANC Enterprises
+
+1. Register a visit / call
+
+2. Create a quote
+
+3. Remind at a later date
+
+4. Mark as dead lead"""
+    sampleDict = {  "channel" : "whatsapp",
+                        "source" : "917834811114",
+                        "destination" : phone,
+                        "src.name":"quotetest",
+                        "message" : json.dumps({
+                            "isHSM":"true",
+                            "type": "text",
+                            "text": message
+                                })
+                                }
+    # jsonData = json.dumps(sampleDict)
+    # print(type(jsonData))
+    r=requests.post("https://api.gupshup.io/sm/api/v1/msg", 
+        headers={"apikey":"9a21ca22fb234722c747925571537486"},
+        data=sampleDict)
+
+    print("\n\nresponse from watsapp",r.text)
+
+
+# def sendmail(person_name,user_mail,user_tl_mail,response_mail_message,response_mail_subject):
+#     # importing the requests library 
+#     import requests 
+#     import json
+#     url_appsScript = 'https://script.google.com/macros/s/AKfycbxc1YGJ8-s2EMzr6RagyA1Ad0JRGYhsB2qXhCyVzDcX03rt82X8/exec'
 
 
 
@@ -110,21 +141,20 @@ def sendmail(person_name,user_mail,user_tl_mail,response_mail_message,response_m
 
 
 
-    headers = {'content-type': 'application/json'}
+#     headers = {'content-type': 'application/json'}
 
-    r = requests.post(url_appsScript+'?name={0}&user_mail={1}&user_tl_mail={2}&message={3}&subject={4}'.format(person_name,user_mail,user_tl_mail,response_mail_message,response_mail_subject))
-    # r = requests.post(url_appsScript+'?name={0}&user_mail={1}&user_tl_mail={2}&message={3}&subject={4}'.format("franklin","franklin@cloobot.com","frankjos1998@gmail.com","new mail","new allot for frank"))
+#     r = requests.post(url_appsScript+'?name={0}&user_mail={1}&user_tl_mail={2}&message={3}&subject={4}'.format(person_name,user_mail,user_tl_mail,response_mail_message,response_mail_subject))
+#     # r = requests.post(url_appsScript+'?name={0}&user_mail={1}&user_tl_mail={2}&message={3}&subject={4}'.format("franklin","franklin@cloobot.com","frankjos1998@gmail.com","new mail","new allot for frank"))
 
-    print(r.text,type(r.text))
-    return r.text
+#     print(r.text,type(r.text))
+#     return r.text
 
-response_mail_message = ("CE name : ajith"+\
-                          "\nQC name : Sankar"+\
-                           "\nProject Name : Project 3"+\
-                            "\nProduct Details : Description"+\
-                                "\nDocuments : https://drive.google.com/drive/folders/1XNhn3Ji0WP7JXGBti3hpY5xm0lu4m4Dp?usp=sharing"+\
-                                    "\nDead line : 2 hrs")
+# response_mail_message = ("CE name : ajith"+\
+#                           "\nQC name : Sankar"+\
+#                            "\nProject Name : Project 3"+\
+#                             "\nProduct Details : Description"+\
+#                                 "\nDocuments : https://drive.google.com/drive/folders/1XNhn3Ji0WP7JXGBti3hpY5xm0lu4m4Dp?usp=sharing"+\
+#                                     "\nDead line : 2 hrs")
                         
-response_mail_subject = "Project Markesd as incomplete by QC"
+# response_mail_subject = "Project Markesd as incomplete by QC"
 # sendmail("franklin","frankjos1998@gmail.com","franklin@cloobot.com",response_mail_message,response_mail_subject)
-watsapp()

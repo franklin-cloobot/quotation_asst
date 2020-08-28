@@ -10,7 +10,7 @@ def wait_till_input_received(mode):
     if mode == MODE_MANUAL:
         input_data = input('Waiting for your input...')
     
-    flag, resp = assistant_act1(input_data, '7868819576', mode)
+    flag, resp = assistant_act2(input_data, '7868819576', mode)
     print("Received input... ",resp)
     return flag
 
