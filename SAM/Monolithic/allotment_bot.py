@@ -192,3 +192,40 @@ I have sent you an email with the quote"""
         conversation_track[phone] = AFTER_ENQUIRY
 
     return 1,response_text
+
+
+def assistant_act3(command, phone, mode):
+    print(command)
+    return_status = True
+    if phone not in conversation_track:
+        conversation_track[phone] = HI
+    
+   
+
+    
+    response_text = ""
+   
+
+   
+
+    # "if statements for executing commands"  
+    command = str(command).strip().lower()
+
+    if 'shutdown' in command or command == "bye":
+        response_text = 'Bye bye Sir. Have a nice day'
+        return_status = False
+       
+    
+    #greetings
+    elif conversation_track[phone] == 0:
+        response_text = """Please enter the minutes of the visit / call."""
+        
+        conversation_track[phone] = NEW_LEAD
+    
+    elif  conversation_track[phone] == NEW_LEAD:
+        response_text = """Thanks! I have updated the sales manager of this development.""" 
+        conversation_track[phone] = LEAD_DETAILS 
+
+  
+
+    return 1,response_text

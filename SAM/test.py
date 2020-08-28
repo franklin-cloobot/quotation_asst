@@ -74,12 +74,17 @@ import requests
 # print(output)
 def watsapp2():
     phone = "919944019577"
-    message = """watsapp()
-Approval received from Rajesh for Quote  
+    message = """Any new updates on ANC Enterprises
 
-ANC - 4 items - Rs. 4,00,101 - 29th July 2020
+1. Register a visit / call
 
-I have sent you an email with the quote"""
+2. Revise Quote
+
+3. Mark as order closed
+
+4. Remind at a later date
+
+5. Mark as dead lead"""
     sampleDict = {  "channel" : "whatsapp",
                         "source" : "917834811114",
                         "destination" : phone,
@@ -158,3 +163,4 @@ def watsapp():
                         
 # response_mail_subject = "Project Markesd as incomplete by QC"
 # sendmail("franklin","frankjos1998@gmail.com","franklin@cloobot.com",response_mail_message,response_mail_subject)
+watsapp2()

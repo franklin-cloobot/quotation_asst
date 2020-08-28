@@ -8,7 +8,7 @@ from flask_cors import CORS
 import pickle
 
 from .constants import *
-from .allotment_bot import assistant_act2, CONTACT_TEXT, HELP_TEXT
+from .allotment_bot import assistant_act3, CONTACT_TEXT, HELP_TEXT
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -52,7 +52,7 @@ def getwhatsappmessage():
 
                 print('Input from whatsappuser::',phone[2:],'::',input_data)
 
-                flag, resp = assistant_act2(input_data, phone[2:], MODE_WHATSAPP)
+                flag, resp = assistant_act3(input_data, phone[2:], MODE_WHATSAPP)
 
                 print('output from assistant_act1::',flag,'::',resp)
         
@@ -64,7 +64,7 @@ def getwhatsappmessage():
 
                 print('Input from whatsappuser::',phone,'::',input_data)
 
-                flag, resp = assistant_act2(input_data, phone[2:], MODE_WHATSAPP)
+                flag, resp = assistant_act3(input_data, phone[2:], MODE_WHATSAPP)
 
                 print('output from assistant_act1::',flag,'::',resp)
         # elif 'type' in eventsDict and eventsDict['type'] == 'user-event'
