@@ -133,32 +133,43 @@ def session_start():
         cur.execute("select lower(product_constraints),lower(location_constraints) from users where user_id  = %s",(mydata1['data']['user_id'],))
         user_constraints = cur.fetchone()
         constraints = user_constraints[0]
+        if(constraints == "['all']"):
+            try:
+                cur.execute("select * from quotes where timestamp >= %s and timestamp <= %s and org_id = %s order by timestamp desc;",(mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
+                # cur.execute("select * from quotes where timestamp >= %s and timestamp <= %s;",(mydata1['from']/1000,mydata1['to']/1000))
+                issues = cur.fetchall()
+            except:
+                cur.execute("rollback;")
+                conn.commit()
+                issues = []
+        else:
+            cons_list = ast.literal_eval(constraints)
+            
+            if(len(cons_list) == 1):
+                cons_list = (cons_list[0])
+            cons_list = str(tuple(cons_list))
+            
 
-        cons_list = ast.literal_eval(constraints)
-        if(len(cons_list) == 1):
-            cons_list = (cons_list[0])
-        cons_list = str(tuple(cons_list))
+            
+            constraints2 = user_constraints[1]
+            cons_list2 = ast.literal_eval(constraints2)
+            if(len(cons_list2) == 1):
+                cons_list2 = (cons_list2[0])
 
-        
-        constraints2 = user_constraints[1]
-        cons_list2 = ast.literal_eval(constraints2)
-        if(len(cons_list2) == 1):
-            cons_list2 = (cons_list2[0])
+            cons_list2 = str(tuple(cons_list2))
 
-        cons_list2 = str(tuple(cons_list2))
-
-        #  'from': 1593858413158, 'to': 1594463213158,
-        # cur.execute("select * from quotes where p_id  in (select p_id from product where upper(p_code) in "+cons_list+" ) and c_id in (select c_id from client where lower(c_address) in "+cons_list2+" ) and timestamp >= %s and timestamp <= %s and org_id = %s order by timestamp desc;",(mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
-        print("\n constraints : ",constraints,constraints2)
-        print("\n constraints : ",cons_list,cons_list2)
-        try:
-            cur.execute("select * from quotes where p_id  in (select p_id from product where lower(p_code) in "+cons_list+" ) and c_id in (select c_id from client where lower(c_address) in "+cons_list2+" ) and timestamp >= %s and timestamp <= %s and org_id = %s order by timestamp desc;",(mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
-            # cur.execute("select * from quotes where timestamp >= %s and timestamp <= %s;",(mydata1['from']/1000,mydata1['to']/1000))
-            issues = cur.fetchall()
-        except:
-            cur.execute("rollback;")
-            conn.commit()
-            issues = []
+            #  'from': 1593858413158, 'to': 1594463213158,
+            # cur.execute("select * from quotes where p_id  in (select p_id from product where upper(p_code) in "+cons_list+" ) and c_id in (select c_id from client where lower(c_address) in "+cons_list2+" ) and timestamp >= %s and timestamp <= %s and org_id = %s order by timestamp desc;",(mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
+            print("\n constraints : ",constraints,constraints2)
+            print("\n constraints : ",cons_list,cons_list2)
+            try:
+                cur.execute("select * from quotes where p_id  in (select p_id from product where lower(p_code) in "+cons_list+" ) and c_id in (select c_id from client where lower(c_address) in "+cons_list2+" ) and timestamp >= %s and timestamp <= %s and org_id = %s order by timestamp desc;",(mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
+                # cur.execute("select * from quotes where timestamp >= %s and timestamp <= %s;",(mydata1['from']/1000,mydata1['to']/1000))
+                issues = cur.fetchall()
+            except:
+                cur.execute("rollback;")
+                conn.commit()
+                issues = []
 
         for row in issues:
             print("\n\n\n\n row : ",row,row[2],"\n\n\n\n")
@@ -281,19 +292,28 @@ def repot_page_graph():
             
             cur.execute("select lower(product_constraints) from users where user_id  = %s",(mydata1['data']['user_id'],))
             constraints = cur.fetchone()[0]
-
-            cons_list = ast.literal_eval(constraints)
-            if(len(cons_list) == 1):
-                cons_list = (cons_list[0])
-            cons_list = str(tuple(cons_list))
-            try :
-                cur.execute("select p_id,count(p_id) as total_numer,sum(unit_price * qty) as total_value,(select sum(unit_price * qty)/count(distinct(p_id)) as average from quotes where org_id = %s) from quotes where timestamp >= %s and timestamp <= %s and p_id  in (select p_id from product where lower(p_code) in "+cons_list+" ) and org_id = %s group by p_id order by total_numer desc;",(mydata1['data']['user_org_id'],mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
-                # cur.execute("select p_id,count(user_id) as total_numer,sum(unit_price * qty) as total_value,(select sum(unit_price * qty)/count(distinct(p_id)) as average from quotes) from quotes where timestamp >= %s and timestamp <= %s group by p_id order by total_numer desc;",(mydata1['from']/1000,mydata1['to']/1000))
-                quote_data = cur.fetchall()
-            except :
-                cur.execute("rollback;")
-                conn.commit()
-                quote_data = []
+            if(constraints == "['all']"):
+                try :
+                    cur.execute("select p_id,count(p_id) as total_numer,sum(unit_price * qty) as total_value,(select sum(unit_price * qty)/count(distinct(p_id)) as average from quotes where org_id = %s) from quotes where timestamp >= %s and timestamp <= %s and p_id and org_id = %s group by p_id order by total_numer desc;",(mydata1['data']['user_org_id'],mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
+                    # cur.execute("select p_id,count(user_id) as total_numer,sum(unit_price * qty) as total_value,(select sum(unit_price * qty)/count(distinct(p_id)) as average from quotes) from quotes where timestamp >= %s and timestamp <= %s group by p_id order by total_numer desc;",(mydata1['from']/1000,mydata1['to']/1000))
+                    quote_data = cur.fetchall()
+                except :
+                    cur.execute("rollback;")
+                    conn.commit()
+                    quote_data = []
+            else:
+                cons_list = ast.literal_eval(constraints)
+                if(len(cons_list) == 1):
+                    cons_list = (cons_list[0])
+                cons_list = str(tuple(cons_list))
+                try :
+                    cur.execute("select p_id,count(p_id) as total_numer,sum(unit_price * qty) as total_value,(select sum(unit_price * qty)/count(distinct(p_id)) as average from quotes where org_id = %s) from quotes where timestamp >= %s and timestamp <= %s and p_id  in (select p_id from product where lower(p_code) in "+cons_list+" ) and org_id = %s group by p_id order by total_numer desc;",(mydata1['data']['user_org_id'],mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
+                    # cur.execute("select p_id,count(user_id) as total_numer,sum(unit_price * qty) as total_value,(select sum(unit_price * qty)/count(distinct(p_id)) as average from quotes) from quotes where timestamp >= %s and timestamp <= %s group by p_id order by total_numer desc;",(mydata1['from']/1000,mydata1['to']/1000))
+                    quote_data = cur.fetchall()
+                except :
+                    cur.execute("rollback;")
+                    conn.commit()
+                    quote_data = []
             #print("$$$$$$$ quote data : ",quote_data)
             for each in quote_data:
                 cur.execute("select p_code from product where p_id = %s",(each[0],))
@@ -304,19 +324,30 @@ def repot_page_graph():
         if mydata1['request_type'] ==  'client':
             cur.execute("select lower(location_constraints) from users where user_id  = %s",(mydata1['data']['user_id'],))
             constraints2 = cur.fetchone()[0]
-            cons_list2 = ast.literal_eval(constraints2)
-            if(len(cons_list2) == 1):
-                cons_list2 = (cons_list2[0])
+            if(constraints2 == "['all']"):
+                try :
+                    cur.execute("select c_id,count(user_id) as total_numer,sum(unit_price * qty) as total_value,(select sum(unit_price * qty)/count(distinct(c_id)) as average from quotes where org_id = %s) from quotes where timestamp >= %s and timestamp <= %s and org_id = %s group by c_id order by total_numer desc;",(mydata1['data']['user_org_id'],mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
+                    # cur.execute("select c_id,count(user_id) as total_numer,sum(unit_price * qty) as total_value,(select sum(unit_price * qty)/count(distinct(c_id)) as average from quotes) from quotes where timestamp >= %s and timestamp <= %s group by c_id order by total_numer desc;",(mydata1['from']/1000,mydata1['to']/1000))
+                    quote_data = cur.fetchall()
+                except :
+                    cur.execute("rollback;")
+                    conn.commit()
+                    quote_data = []
+            else:
 
-            cons_list2 = str(tuple(cons_list2))
-            try :
-                cur.execute("select c_id,count(user_id) as total_numer,sum(unit_price * qty) as total_value,(select sum(unit_price * qty)/count(distinct(c_id)) as average from quotes where org_id = %s) from quotes where timestamp >= %s and timestamp <= %s and c_id in (select c_id from client where lower(c_address) in "+cons_list2+" ) and org_id = %s group by c_id order by total_numer desc;",(mydata1['data']['user_org_id'],mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
-                # cur.execute("select c_id,count(user_id) as total_numer,sum(unit_price * qty) as total_value,(select sum(unit_price * qty)/count(distinct(c_id)) as average from quotes) from quotes where timestamp >= %s and timestamp <= %s group by c_id order by total_numer desc;",(mydata1['from']/1000,mydata1['to']/1000))
-                quote_data = cur.fetchall()
-            except :
-                cur.execute("rollback;")
-                conn.commit()
-                quote_data = []
+                cons_list2 = ast.literal_eval(constraints2)
+                if(len(cons_list2) == 1):
+                    cons_list2 = (cons_list2[0])
+
+                cons_list2 = str(tuple(cons_list2))
+                try :
+                    cur.execute("select c_id,count(user_id) as total_numer,sum(unit_price * qty) as total_value,(select sum(unit_price * qty)/count(distinct(c_id)) as average from quotes where org_id = %s) from quotes where timestamp >= %s and timestamp <= %s and c_id in (select c_id from client where lower(c_address) in "+cons_list2+" ) and org_id = %s group by c_id order by total_numer desc;",(mydata1['data']['user_org_id'],mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
+                    # cur.execute("select c_id,count(user_id) as total_numer,sum(unit_price * qty) as total_value,(select sum(unit_price * qty)/count(distinct(c_id)) as average from quotes) from quotes where timestamp >= %s and timestamp <= %s group by c_id order by total_numer desc;",(mydata1['from']/1000,mydata1['to']/1000))
+                    quote_data = cur.fetchall()
+                except :
+                    cur.execute("rollback;")
+                    conn.commit()
+                    quote_data = []
             #print("$$$$$$$ quote data : ",quote_data)
             for each in quote_data:
                 cur.execute("select c_name from client where c_id = %s",(each[0],))
@@ -374,18 +405,26 @@ def repot_page_table():
         if mydata1['request_type'] ==  'product':
             cur.execute("select lower(product_constraints) from users where user_id  = %s",(mydata1['data']['user_id'],))
             constraints = cur.fetchone()[0]
-
-            cons_list = ast.literal_eval(constraints)
-            if(len(cons_list) == 1):
-                cons_list = (cons_list[0])
-            cons_list = str(tuple(cons_list))
-            try :
-                cur.execute("select p_id,count(p_id) as total_numer,sum(unit_price * qty) as total_value from quotes where timestamp >= %s and timestamp <= %s and p_id  in (select p_id from product where lower(p_code) in "+cons_list+" ) and org_id = %s group by p_id order by total_numer desc;",(mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
-                quote_data = cur.fetchall()
-            except :
-                cur.execute("rollback;")
-                conn.commit()
-                quote_data = []
+            if(constraints == "['all']"):
+                try :
+                    cur.execute("select p_id,count(p_id) as total_numer,sum(unit_price * qty) as total_value from quotes where timestamp >= %s and timestamp <= %s and p_id  in (select p_id from product where lower(p_code) in "+cons_list+" ) and org_id = %s group by p_id order by total_numer desc;",(mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
+                    quote_data = cur.fetchall()
+                except :
+                    cur.execute("rollback;")
+                    conn.commit()
+                    quote_data = []
+            else:
+                cons_list = ast.literal_eval(constraints)
+                if(len(cons_list) == 1):
+                    cons_list = (cons_list[0])
+                cons_list = str(tuple(cons_list))
+                try :
+                    cur.execute("select p_id,count(p_id) as total_numer,sum(unit_price * qty) as total_value from quotes where timestamp >= %s and timestamp <= %s and p_id  in (select p_id from product where lower(p_code) in "+cons_list+" ) and org_id = %s group by p_id order by total_numer desc;",(mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
+                    quote_data = cur.fetchall()
+                except :
+                    cur.execute("rollback;")
+                    conn.commit()
+                    quote_data = []
             #print("$$$$$$$ quote data : ",quote_data)
             for each in quote_data:
                 cur.execute("select p_code from product where p_id = %s",(each[0],))
@@ -396,18 +435,28 @@ def repot_page_table():
         if mydata1['request_type'] ==  'client':
             cur.execute("select lower(location_constraints) from users where user_id  = %s",(mydata1['data']['user_id'],))
             constraints2 = cur.fetchone()[0]
-            cons_list2 = ast.literal_eval(constraints2)
-            if(len(cons_list2) == 1):
-                cons_list2 = (cons_list2[0])
+            if(constraints2 == "['all']"):
+                try :
+                    cur.execute("select c_id,count(user_id) as total_numer,sum(unit_price * qty) as total_value from quotes where timestamp >= %s and timestamp <= %s and c_id in (select c_id from client where lower(c_address) in "+cons_list2+" ) and org_id = %s group by c_id order by total_numer desc;",(mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
+                    quote_data = cur.fetchall()
+                except :
+                    cur.execute("rollback;")
+                    conn.commit()
+                    quote_data = []
+            else:
 
-            cons_list2 = str(tuple(cons_list2))
-            try :
-                cur.execute("select c_id,count(user_id) as total_numer,sum(unit_price * qty) as total_value from quotes where timestamp >= %s and timestamp <= %s and c_id in (select c_id from client where lower(c_address) in "+cons_list2+" ) and org_id = %s group by c_id order by total_numer desc;",(mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
-                quote_data = cur.fetchall()
-            except :
-                cur.execute("rollback;")
-                conn.commit()
-                quote_data = []
+                cons_list2 = ast.literal_eval(constraints2)
+                if(len(cons_list2) == 1):
+                    cons_list2 = (cons_list2[0])
+
+                cons_list2 = str(tuple(cons_list2))
+                try :
+                    cur.execute("select c_id,count(user_id) as total_numer,sum(unit_price * qty) as total_value from quotes where timestamp >= %s and timestamp <= %s and c_id in (select c_id from client where lower(c_address) in "+cons_list2+" ) and org_id = %s group by c_id order by total_numer desc;",(mydata1['from']/1000,mydata1['to']/1000,mydata1['data']['user_org_id']))
+                    quote_data = cur.fetchall()
+                except :
+                    cur.execute("rollback;")
+                    conn.commit()
+                    quote_data = []
             #print("$$$$$$$ quote data : ",quote_data)
             for each in quote_data:
                 cur.execute("select c_name from client where c_id = %s",(each[0],))
@@ -868,7 +917,7 @@ def register():
     dict_ = request.data.decode("UTF-8")
     mydata = ast.literal_eval(dict_)
     cur.execute("insert into organisation (org_id,org_name,timestamp) values(%s,%s,%s);",(mydata['company_name'][:3]+str(ts),mydata['company_name'][:3],ts))
-    cur.execute(" INSERT INTO users (user_id,org_id,user_name,user_password,user_phone,user_email,auth_level,manager_id,timestamp,product_constraints,location_constraints) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",('u'+mydata['company_name'][:3]+'1',mydata['company_name'][:3]+str(ts),mydata['user_name'],mydata['password'],mydata['phone'][3:],mydata['email_id'],4,'u'+mydata['company_name'][:3]+'1',ts,'[]','[]'))
+    cur.execute(" INSERT INTO users (user_id,org_id,user_name,user_password,user_phone,user_email,auth_level,manager_id,timestamp,product_constraints,location_constraints) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",('u'+mydata['company_name'][:3]+'1',mydata['company_name'][:3]+str(ts),mydata['user_name'],mydata['password'],mydata['phone'][3:],mydata['email_id'],4,'u'+mydata['company_name'][:3]+'1',ts,"['all']","['all']"))
     conn.commit()
     print("mydata : ",mydata)
     return {"status":"ok"}
