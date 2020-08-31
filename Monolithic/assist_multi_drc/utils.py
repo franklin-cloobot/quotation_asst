@@ -228,13 +228,13 @@ def change_the_details(command,phone):
         data = data[current_row]
         print("\n after finding the row : ",data)
         temp_id = data[0]
-        cur.execute("update temp set quantity = %s where temp_id = %s",(command,temp_id,))
+        cur.execute("update temp set quantity = %s where temp_id = %s",(int(command),temp_id,))
         print("\n quantity updated \n")
 
     elif(current_option % 3 == 0):
         data = data[current_row]
         temp_id = data[0]
-        cur.execute("update temp set price = %s where temp_id = %s",(command,temp_id,))
+        cur.execute("update temp set price = %s where temp_id = %s",(float(command),temp_id,))
         print("\n price updated \n")
     return 1
 
