@@ -77,7 +77,7 @@ def hello():
     return "Hello, Im bot!"
 
 if __name__ == "__main__":
-    app.run(use_reloader=False)
+    app.run(port=WHATSAPP_SERVER_PORT,use_reloader=False)
 # def start_whatsapp_conversation_server():
 #     app.run(port=WHATSAPP_SERVER_PORT,host="0.0.0.0",use_reloader=False)
 

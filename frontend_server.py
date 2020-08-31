@@ -9,12 +9,12 @@ decimal.getcontext().prec = 5
 
 import datetime
 import time
-# from .components.pagedata import *
-# from .components.valtoken import *
-# from .bachend_insert import *
-from components.pagedata import *
-from components.valtoken import *
-from bachend_insert import *
+from .components.pagedata import *
+from .components.valtoken import *
+from .bachend_insert import *
+# from components.pagedata import *
+# from components.valtoken import *
+# from bachend_insert import *
 from flask import request, jsonify
 from flask import send_file,make_response,render_template
 from flask import Flask, request, redirect, jsonify, send_file
@@ -30,8 +30,8 @@ app.config["DEBUG"] = True
 
 import psycopg2
 import pandas as pd
-# conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
-conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
+conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
+# conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
 
 JWT_EXP_DELTA_SECONDS = 86400
 
@@ -876,26 +876,25 @@ def register():
 cors = CORS(app, resources={r"/product_list": {"origins": "*"}})
 @app.route('/product_list', methods=['GET','POST'])
 def product_table():
-    ##print(request)
-    # name = "franklin"
-    # phone = request.args.get('phone')
-    # print("\n phone : ",phone)
-    # cur.execute("select * from product where org_id = (select org_id from users where user_phone = %s)",(phone,))
-    # products = [list(each) for each in cur.fetchall()]
-    # print("\n products : ",products)
-    products = [
-    ['5543_display',"32 inch display"],
-    ['5435_display',"32 inch display"],
-    ['568_battery',"3000mah battery"],
-    ['3v-charger',"10ams charger"],
-    ['lithium_23',"30v battery"],
-    ['5.5_cable',"32 inch display"],
-    ['5.5 mm optic cable',"5dc cable"],
-    ['ACN109',"Description"],
-    ['PCN908',"Description"],
-    ['HP-108',"Description"],
-    ['Laptop Macbook',"8gb ram 1024 ssd"],
-    ['Laptop Lenovo',"16gb ram"]]
+    print(request)
+    phone = request.args.get('phone')
+    print("\n phone : ",phone)
+    cur.execute("select * from product where org_id = (select org_id from users where user_phone = %s)",(phone,))
+    products = [list(each) for each in cur.fetchall()]
+    print("\n products : ",products)
+    # products = [
+    # ['5543_display',"32 inch display"],
+    # ['5435_display',"32 inch display"],
+    # ['568_battery',"3000mah battery"],
+    # ['3v-charger',"10ams charger"],
+    # ['lithium_23',"30v battery"],
+    # ['5.5_cable',"32 inch display"],
+    # ['5.5 mm optic cable',"5dc cable"],
+    # ['ACN109',"Description"],
+    # ['PCN908',"Description"],
+    # ['HP-108',"Description"],
+    # ['Laptop Macbook',"8gb ram 1024 ssd"],
+    # ['Laptop Lenovo',"16gb ram"]]
 
     print(products)
     return render_template('index.html', table = products)

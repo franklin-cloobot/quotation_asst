@@ -27,15 +27,15 @@
         <th >product code</th>
         <th >Description</th>
         <th> Copy </th>
-        <th> Check </th>
+        <!-- <th> Check </th> -->
     </tr>
     {% for row in table %}
         
         <tr > 
-            <td id="mytext" >{{row.0}}</td>
-            <td>{{row.1}}</td>
+            <td id="mytext" >{{row.4}}</td>
+            <td>{{row.2}}</td>
             <td ><button onclick="copy_function({{row}})">Copy Part Code</button></td>
-            <td> <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike"></td>
+            <!-- <td> <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike"></td> -->
         </tr>
         
     {% endfor %}
