@@ -278,8 +278,8 @@ def assistant(command, phone, mode):
                 # new session is started
                 store_dealers_in_session(phone,tmp)
                 args = {"phone": phone}
-                url = "localhost:8001/product_list?{}".format(urllib.parse.urlencode(args))
-                # url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
+                #url = "localhost:8001/product_list?{}".format(urllib.parse.urlencode(args))
+                url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
                 resp = "Got it "+tmp+". Please enter product in the format [name],[quantity],[price].If you want more than one product give each of them in new line using the correct format as said before.If u not sure about the product see the list of products\n here : " + url
                 response_text = resp
                 # conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
@@ -381,7 +381,8 @@ def assistant(command, phone, mode):
                     print("\n\nerror querry : ",error_querry)
                     delete_error_querry(pending_list[0][0])
                     args = {"phone": phone}
-                    url = "localhost:8001/product_list?{}".format(urllib.parse.urlencode(args))
+                    url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
+                    # url = "localhost:8001/product_list?{}".format(urllib.parse.urlencode(args))
                     change_conversation_state(phone,CS_QUOTE_PRODUCT_DETAILS)
                     conversation_track,top3_dict = current_state(phone)
                     print("\n conversation track : ",conversation_track)
@@ -418,8 +419,8 @@ def assistant(command, phone, mode):
             if(command in ['yes','Yes','Y','y']):
                 print("\n\n Yes")
                 args = {"phone": phone}
-                # url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
-                url = "localhost:8001/product_list?{}".format(urllib.parse.urlencode(args))
+                url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
+                # url = "localhost:8001/product_list?{}".format(urllib.parse.urlencode(args))
                 resp = "Sure. Please enter next product [name],[quantity],[price].\nUse this link for your product code reference : " + url
                 response_text = resp
                 # conversation_track[phone] = CS_QUOTE_PRODUCT_DETAILS
@@ -443,8 +444,8 @@ def assistant(command, phone, mode):
             which_detail_edit = int(command)%3
             if(which_detail_edit == 1):
                 args = {"phone": phone}
-                # url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
-                url = "localhost:8001/product_list?{}".format(urllib.parse.urlencode(args))
+                url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
+                # url = "localhost:8001/product_list?{}".format(urllib.parse.urlencode(args))
                 resp = "what is the product." + "\nUse this link for your product code reference : " + url
             elif(which_detail_edit == 2):
                 resp = "what is the quantity."
