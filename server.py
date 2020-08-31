@@ -16,9 +16,13 @@ import pickle
 # from .assist_multi_1_at_a_time.constants import *
 
 #Dump, Review, Change
-from .Monolithic.assist_multi_drc.utils import *
-from .Monolithic.assist_multi_drc.quote_assistant import assistant, CONTACT_TEXT, HELP_TEXT
-from .Monolithic.assist_multi_drc.constants import *
+from Monolithic.assist_multi_drc.utils import *
+from Monolithic.assist_multi_drc.quote_assistant import assistant, CONTACT_TEXT, HELP_TEXT
+from Monolithic.assist_multi_drc.constants import *
+
+# from .Monolithic.assist_multi_drc.utils import *
+# from .Monolithic.assist_multi_drc.quote_assistant import assistant, CONTACT_TEXT, HELP_TEXT
+# from .Monolithic.assist_multi_drc.constants import *
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
