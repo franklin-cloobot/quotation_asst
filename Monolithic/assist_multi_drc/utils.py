@@ -267,7 +267,7 @@ def store_in_permanent(data,phone):
             cur.execute("select p_id from product where LOWER(p_desc) = LOWER(%s)",(i[1],))
             p_id = cur.fetchone()
         print("\n part id :",p_id)
-        cur.execute("insert into quotes(q_id,org_id,user_id,c_id,p_id,qty,unit_price,sales_exec_id,sales_manager_id,chat_conversation,email_conversation,timestamp,thread_id,session_id) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",(q_id,user_org_id,u_id,client,p_id,int(i[2]),int(i[3][0:len(i[3])-2]),u_id,sales_manager_id,chat_conversation,email_conversation,ts,thread_id,sess_id))
+        cur.execute("insert into quotes(q_id,org_id,user_id,c_id,p_id,qty,unit_price,sales_exec_id,sales_manager_id,chat_conversation,email_conversation,timestamp,thread_id,session_id) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",(q_id,user_org_id,u_id,client,p_id,int(i[2]),float(i[3]),u_id,sales_manager_id,chat_conversation,email_conversation,ts,thread_id,sess_id))
     conn.commit()
     print(" stored into permanent")
 

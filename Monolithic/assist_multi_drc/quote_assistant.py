@@ -387,7 +387,7 @@ def assistant(command, phone, mode):
                     conversation_track,top3_dict = current_state(phone)
                     print("\n conversation track : ",conversation_track)
                     # url = "quote.cloobot.ai/quote_testing_api/product_list?{}".format(urllib.parse.urlencode(args))
-                    response_text = "There is no any product related to your query or the inpuformat is wrong for command '" + error_querry + "' ,please re enter in correct format" + "\nPlease enter product in the format [name],[quantity],[price].If you want more than one product give each of them in new line using the correct format as said before.If u not sure about the product see the list of products\n here : " + url
+                    response_text = "There is no any product related to your query or the input format is wrong for command '" + error_querry + "' ,please re enter in correct format" + "\nPlease enter product in the format [name],[quantity],[price].If you want more than one product give each of them in new line using the correct format as said before.If u not sure about the product see the list of products\n here : " + url
                     
                 else:
                     print("\n option list : ",option_list)
