@@ -71,8 +71,8 @@ def isQty(inputString,phone):
     inputString = inputString.replace('units','').replace('nos','').replace('items','')
     l = inputString.split(' ')
     for i in l:
-        if(i.isdigit()):
-            return int(i)
+        if(str(int(float(i))).isdigit()):
+            return float(i)
     return 0
 
 def isPrice(inputString,phone):
