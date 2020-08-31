@@ -357,7 +357,7 @@ def assistant(command, phone, mode):
             sno = 1
             for i in range(len(from_temp)):
                 print(type(from_temp[i][1]),type(from_temp[i][2]),type(from_temp[i][3]))
-                resp = resp + "\n product : "+str(i) + '\n'
+                resp = resp + "\n product : "+str(i+1) + '\n'
                 resp = resp + str(sno) + " . Product is "+ from_temp[i][1]  + '\n'
                 sno = sno + 1
                 resp = resp + str(sno) +" . Quantity is " + from_temp[i][2] + " nos" + '\n'
