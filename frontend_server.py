@@ -6,15 +6,15 @@ import uuid
 import jwt
 import decimal
 decimal.getcontext().prec = 5
-
+from flask_socketio import SocketIO, emit
 import datetime
 import time
-from .components.pagedata import *
-from .components.valtoken import *
-from .bachend_insert import *
-# from components.pagedata import *
-# from components.valtoken import *
-# from bachend_insert import *
+# from .components.pagedata import *
+# from .components.valtoken import *
+# from .bachend_insert import *
+from components.pagedata import *
+from components.valtoken import *
+from bachend_insert import *
 from flask import request, jsonify
 from flask import send_file,make_response,render_template
 from flask import Flask, request, redirect, jsonify, send_file
@@ -23,15 +23,17 @@ import base64
 from flask_cors import CORS
 # app = flask.Flask(__name__)
 app = flask.Flask(__name__, template_folder="templates")
-app.config["DEBUG"] = True
+app = flask.Flask(__name__)
+# app.config["DEBUG"] = True
+SOCKETIO = SocketIO(app, cors_allowed_origins="*")
 
 
 
 
 import psycopg2
 import pandas as pd
-conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
-# conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
+# conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
+conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
 
 JWT_EXP_DELTA_SECONDS = 86400
 
@@ -924,10 +926,12 @@ def register():
     ts = int(datetime.datetime.now().timestamp()) 
     dict_ = request.data.decode("UTF-8")
     mydata = ast.literal_eval(dict_)
+    print("\n register data : ",mydata)
     cur.execute("insert into organisation (org_id,org_name,timestamp) values(%s,%s,%s);",(mydata['company_name'][:3]+str(ts),mydata['company_name'],ts))
     cur.execute(" INSERT INTO users (user_id,org_id,user_name,user_password,user_phone,user_email,auth_level,manager_id,timestamp,product_constraints,location_constraints) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",('u'+mydata['company_name'][:3]+'1',mydata['company_name'][:3]+str(ts),mydata['user_name'],mydata['password'],mydata['phone'][3:],mydata['email_id'],4,'u'+mydata['company_name'][:3]+'1',ts,"['all']","['all']"))
     conn.commit()
     print("mydata : ",mydata)
+    print("\n\nreturned\n\n")
     return {"status":"ok"}
 
 cors = CORS(app, resources={r"/product_list": {"origins": "*"}})
@@ -942,6 +946,21 @@ def product_table():
     print(products)
     return render_template('index.html', table = products)
 
+@SOCKETIO.on('connect')
+def message():
+    # print("\n\n info : ",info)
+    data = 'Hi, connection from flask-socketio'
+    foo = request.args.get('userId')
+    save_socket_session(request.args.get('userId'),request.sid)
+    print("\nconnected : ",foo)
+    emit('connect_ngsocket', {'data': data})
+
+@SOCKETIO.on('call_from_ng')
+def handlingCallFromNg(data):
+    print("\n received data : ",data,request.args,request.sid)
+    #### Do anything you want to do with the data
+    emit('response_from_py', { 'data' : 'Anything' })    #### Sending response from python to angular app
+
 
 @app.route("/test")
 def hello2():
@@ -952,4 +971,5 @@ def hello():
     return "Hello, I love Digital Ocean!"
 
 if __name__ == "__main__":
-    app.run(port = 8001,use_reloader=False)
+    SOCKETIO.run(app,host='0.0.0.0',port=8202)
+    # app.run(port = 8001,use_reloader=False)

@@ -5,8 +5,8 @@ import calendar;
 import time;
 import datetime
 import ast
-# conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
-conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
+conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
+# conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
 cur = conn.cursor()
 
 
@@ -388,6 +388,31 @@ def delete_error_querry(error_temp_id):
     cur.execute("delete from temp where temp_id = %s",(error_temp_id,))
     conn.commit()
     print("\nerror querru deleted : ",error_temp_id)
+    return 1
+
+def save_socket_session(user_id,sessionId):
+    try:
+        new_socket_create(user_id,sessionId)
+        return 1
+    except:
+        new_socket_update(user_id,sessionId)
+        return 1
+        
+    return 0
+
+def new_socket_create(user_id,session_id):
+    conn.commit()
+    cur.execute("insert into socket_session(sess_user_id,sess_id,timestamp) values(%s,%s,%s);",(user_id,session_id,datetime.datetime.now()))
+    print("new socket created for user id : ",user_id)
+    conn.commit()
+    return 1
+
+def new_socket_update(user_id,session_id):
+    conn.rollback()
+    conn.commit()
+    cur.execute("update socket_session set sess_id = %s,timestamp=%s where sess_user_id = %s",(session_id,datetime.datetime.now(),user_id))
+    print("socket updated for user id : ",user_id)
+    conn.commit()
     return 1
     
     

@@ -2,8 +2,8 @@
 
 import psycopg2
 
-conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
-# conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
+# conn = psycopg2.connect(database="quotationbot", user = "cloobot", password = "cloobot", host = "localhost", port = "5432")
+conn = psycopg2.connect(database="quotationbot", user = "postgres", password = "Logapriya@213", host = "localhost", port = "5432")
 print("Opened database successfully")
 cur = conn.cursor()
 # cur.execute('''CREATE TABLE ORGANISATION
@@ -87,13 +87,24 @@ cur = conn.cursor()
 #       current_option    INT);
 #       ''')
 
-cur.execute('''CREATE TABLE CONVERSATION_TRACK(
-      CONV_ID        SERIAL,
-      PHONE          TEXT    NOT NULL,
-      TOP3           TEXT,
-      STATE          INT     NOT NULL,
-      TIMESTAMP      INT     NOT NULL);
-      ''')
+# cur.execute('''CREATE TABLE CONVERSATION_TRACK(
+#       CONV_ID        SERIAL,
+#       PHONE          TEXT    NOT NULL,
+#       TOP3           TEXT,
+#       STATE          INT     NOT NULL,
+#       TIMESTAMP      INT     NOT NULL);
+#       ''')
+
+cur.execute('''
+CREATE TABLE SOCKET_SESSION
+      (
+            sess_row_id                     SERIAL primary key NOT NULL,
+            sess_user_id                    INT   UNIQUE,
+            sess_id                         TEXT  UNIQUE,
+            timestamp                       timestamp
+
+      );
+''')
 
 conn.commit()
 conn.close()
