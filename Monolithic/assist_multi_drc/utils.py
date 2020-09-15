@@ -304,7 +304,7 @@ def get_user(phone):
         print("\n user : ",user)
         return user[0],user[1]
     except:
-        return "new"
+        return "new",None
 
 def get_user_credentials(phone):
     cur.execute("select user_email,user_password from users where user_phone = %s",(phone,))
