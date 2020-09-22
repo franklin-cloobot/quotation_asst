@@ -20,7 +20,7 @@ def wait_till_input_received(mode):
     if mode == MODE_MANUAL:
         input_data = input('Waiting for your input...')
     
-    flag, resp = assistant(input_data, '9159014926', mode)
+    flag, resp = assistant(input_data, '9988776600', mode)
     print("Received input... ",resp)
     return flag
 

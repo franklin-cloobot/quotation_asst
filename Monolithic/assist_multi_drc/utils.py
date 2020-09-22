@@ -136,9 +136,9 @@ def check_for_pending(phone):
 
 def store_in_temp(command,phone):
     print("\n store temp called\n")
-    if(' ' in command):
-        commands = command.split(" ")
-    elif('\n' in command):
+    # if(' ' in command):
+    #     commands = command.split(" ")
+    if('\n' in command):
         commands = command.split('\n')
     else:
         commands = [command]
