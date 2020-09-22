@@ -232,6 +232,19 @@ def session_start():
         #print("invalid access")
         return {"status":"failed"}
 
+cors = CORS(app, resources={r"/preload": {"origins": "*"}})
+@app.route('/preload', methods=['GET','POST'])
+def preload():
+    
+    dict_ = request.data.decode("UTF-8")
+    mydata1 = ast.literal_eval(dict_) 
+    #print("api data",mydata1['data'])
+    
+    if preloaded_scripts(mydata1['data']):
+        return {"status":"ok"}
+    else:
+        return {"status":"no"}
+    
 
 cors = CORS(app, resources={r"/authcheck": {"origins": "*"}})
 @app.route('/authcheck', methods=['GET','POST'])
@@ -924,11 +937,11 @@ def register():
     ts = int(datetime.datetime.now().timestamp()) 
     dict_ = request.data.decode("UTF-8")
     mydata = ast.literal_eval(dict_)
-    cur.execute("insert into organisation (org_id,org_name,timestamp) values(%s,%s,%s);",(mydata['company_name'][:3]+str(ts),mydata['company_name'],ts))
+    cur.execute("insert into organisation (org_id,org_name,timestamp) values(%s,%s,%s)",(mydata['company_name'][:3]+str(ts),mydata['company_name'],ts))
     cur.execute(" INSERT INTO users (user_id,org_id,user_name,user_password,user_phone,user_email,auth_level,manager_id,timestamp,product_constraints,location_constraints) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",('u'+mydata['company_name'][:3]+'1',mydata['company_name'][:3]+str(ts),mydata['user_name'],mydata['password'],mydata['phone'][3:],mydata['email_id'],4,'u'+mydata['company_name'][:3]+'1',ts,"['all']","['all']"))
     conn.commit()
     print("mydata : ",mydata)
-    return {"status":"ok"}
+    return {"status":"ok","org_id":mydata['company_name'][:3]+str(ts)}
 
 cors = CORS(app, resources={r"/product_list": {"origins": "*"}})
 @app.route('/product_list', methods=['GET','POST'])

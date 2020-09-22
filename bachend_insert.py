@@ -91,7 +91,6 @@ def insert_user(filename,org_id,user_id):
         location_cons = excel_data_df['location_constraints'][i].split(',')
         product_cons = excel_data_df['product_constraints'][i].split(',')
         cur.execute(" INSERT INTO users (user_id,org_id,user_name,user_password,user_phone,user_email,auth_level,manager_id,timestamp,product_constraints,location_constraints) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",(uid+str(count + i),org_id,excel_data_df['name'][i],excel_data_df['password'][i],excel_data_df['phone'][i],excel_data_df['mail'][i],auth_level,manager_id,ts,str(product_cons),str(location_cons)))
-        
     
     conn.commit()
     return 1
@@ -107,6 +106,36 @@ def insert_user(filename,org_id,user_id):
 
 ###############################################################################################
 
+def preloaded_scripts(org_id):
+    filename = "client.xlsx"
+    # path = "Assets/preloaded/"
+    path = "/var/www/flaskapp_quote_testing/quotation_asst/Assets/preloaded/"
+    SHEET = 0
+    excel_data_df = pandas.read_excel(path+filename, sheet_name=SHEET)
+    print(excel_data_df)
+    cur.execute("select count(*) from client where org_id = %s",(org_id,))
+    count = cur.fetchone()[0]+1
+    for i in range(len(excel_data_df['Client Name'])):
+        cid = 'c'+org_id[:3]
+        ts = calendar.timegm(time.gmtime())
+        cur.execute(" INSERT INTO client (c_id,org_id,c_name,c_phone,c_mail,c_address,timestamp) VALUES (%s,%s,%s,%s,%s,%s,%s)",(cid+str(count + i),org_id,excel_data_df['Client Name'][i],excel_data_df['phone'][i],excel_data_df['E-Mail ID'][i],excel_data_df['Location'][i],ts))
+    
+    
+    filename = "product.xlsx"
+    SHEET = 0
+    excel_data_df = pandas.read_excel(path+filename, sheet_name=SHEET)
+    print(excel_data_df)
+    cur.execute("select count(*) from product where org_id = %s",(org_id,))
+    count = cur.fetchone()[0]+1
+    for i in range(len(excel_data_df['Part_Code'])):
+        pid = 'p'+org_id[:3]
+        ts = calendar.timegm(time.gmtime())
+        
+        cur.execute(" INSERT INTO product (p_id,org_id,p_desc,p_category,p_code,timestamp) VALUES (%s,%s,%s,%s,%s,%s)",(pid+str(count + i),org_id,excel_data_df['Product_Description'][i].lower(),excel_data_df['Product_Category'][i].lower(),excel_data_df['Part_Code'][i].lower(),ts))
+    
+    conn.commit()
+    return 1
+    
 
 
 conn.commit()
