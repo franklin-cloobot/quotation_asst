@@ -544,8 +544,10 @@ def invite():
         
         cur.execute("select p_code from product where org_id = %s",(mydata1['data']['user_org_id'],))
         products = list(cur.fetchall())
+        cur.execute("select c_address from client where org_id = %s",(mydata1['data']['user_org_id'],))
+        location = list(cur.fetchall())
         #print("\n\n\n",products)
-        location = ['chennai','bangalore','coimbatore','mumbai','delhi','pune']
+        
         for each_user in user:
             output.append({"u_id":each_user[0],"name":each_user[2],"user_pwd":each_user[3],"user_phone":each_user[4],"mail":each_user[5],"auth_level":each_user[6],"manager_id":each_user[7],"product_constraints":ast.literal_eval(each_user[9]),"location_constraints":ast.literal_eval(each_user[10])})
         return {"table":output,"products":products,"location":location}
